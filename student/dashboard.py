@@ -1,1 +1,1 @@
-# dashboard.py - Entry placeholder
+# dashboard.py - Implementation placeholder

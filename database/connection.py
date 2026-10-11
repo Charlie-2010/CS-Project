@@ -1,1 +1,1 @@
-# connection.py - Entry placeholder
+# connection.py - Implementation placeholder

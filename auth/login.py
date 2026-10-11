@@ -1,1 +1,1 @@
-# login.py - Entry placeholder
+# login.py - Implementation placeholder

@@ -1,1 +1,1 @@
-# widgets.py - Entry placeholder
+# widgets.py - Implementation placeholder

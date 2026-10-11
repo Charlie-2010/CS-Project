@@ -1,1 +1,1 @@
-# theme.py - Entry placeholder
+# theme.py - Implementation placeholder

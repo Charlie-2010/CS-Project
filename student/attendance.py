@@ -1,0 +1,1 @@
+# attendance.py - Entry placeholder

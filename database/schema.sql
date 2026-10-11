@@ -11,10 +11,11 @@ USE student_performance_system;
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- Intended for SHA-256 / bcrypt output
+    password_hash VARCHAR(64) NOT NULL,  -- SHA-256 outputs exactly 64 characters
+    password_salt VARCHAR(32) NOT NULL,  -- Hex-encoded 16 bytes outputs exactly 32 characters
     role ENUM('teacher', 'student') NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ============================================================================

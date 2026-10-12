@@ -1,61 +1,69 @@
+"""Safe convenience helpers for the four validated core entities.
+
+Parameterized SQL protects values, while this module's allow-list protects the
+identifiers that cannot be sent to MySQL as ``%s`` parameters.
 """
-utils/helpers.py
-Defines simplified parameter wrapper utilities for core DML transactions 
-and entity fetches across teacher and student frontend panels.
-"""
+from __future__ import annotations
 
-from database.connection import execute_dml, fetch_all_records, fetch_single_record
+import re
+from typing import Any, Sequence
 
-def insert_record(table_name, columns_list, values_tuple):
-    """
-    Constructs and executes a safe parameterized INSERT query statement.
-    
-    Example usage:
-        insert_record("subjects", ["subject_name", "subject_code"], ("Biology", "BIO12"))
-    """
-    columns_str = ", ".join(columns_list)
-    # Generate the correct number of %s positional anchors safely
-    placeholders_str = ", ".join(["%s"] * len(columns_list))
-    
-    query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders_str});"
-    
-    return execute_dml(query, values_tuple)
+from database.connection import execute_dml, fetch_all_records
+from utils.validators import ValidationError, validate_entity
 
-def update_record(table_name, update_dict, condition_str, condition_params_tuple):
-    """
-    Constructs and executes a safe parameterized UPDATE query statement.
-    
-    Example usage:
-        update_record("users", {"username": "new_user"}, "user_id = %s", (5,))
-    """
-    set_clauses = []
-    values_list = []
-    
-    for column, val in update_dict.items():
-        set_clauses.append(f"{column} = %s")
-        values_list.append(val)
-        
-    set_str = ", ".join(set_clauses)
-    query = f"UPDATE {table_name} SET {set_str} WHERE {condition_str};"
-    
-    # Merge values matching columns with condition variables into a single tuple
-    full_params = tuple(values_list) + condition_params_tuple
-    
-    return execute_dml(query, full_params)
 
-def get_records_by_filter(table_name, columns_to_select, condition_str=None, params_tuple=None):
-    """
-    Fetches clean datasets using safe parameterized tracking.
-    
-    Example usage:
-        get_records_by_filter("students", ["first_name", "last_name"], "class_id = %s", (1,))
-    """
-    select_str = ", ".join(columns_to_select)
-    query = f"SELECT {select_str} FROM {table_name}"
-    
-    if condition_str:
-        query += f" WHERE {condition_str};"
-        return fetch_all_records(query, params_tuple)
-        
-    query += ";"
-    return fetch_all_records(query)
+_COLUMNS = {
+    "students": {"user_id", "roll_number", "first_name", "last_name", "email", "date_of_birth", "class_id"},
+    "teachers": {"user_id", "first_name", "last_name", "email", "phone"},
+    "classes": {"class_name", "room_number", "class_teacher_id"},
+    "subjects": {"subject_name", "subject_code"},
+}
+_EQUALITY = re.compile(r"^\s*([a-z_]+)\s*=\s*%s\s*$")
+
+
+def _columns_for(table_name: str, columns: Sequence[str]) -> list[str]:
+    if table_name not in _COLUMNS:
+        raise ValidationError(f"Unsupported table: {table_name!r}.")
+    if not columns or len(set(columns)) != len(columns) or not set(columns) <= _COLUMNS[table_name]:
+        raise ValidationError("One or more requested columns are not valid for this table.")
+    return list(columns)
+
+
+def _where_clause(table_name: str, condition: str, params: Sequence[Any] | None) -> tuple[str, tuple[Any, ...]]:
+    match = _EQUALITY.fullmatch(condition or "")
+    if not match or match.group(1) not in _COLUMNS[table_name]:
+        raise ValidationError("Filters must be one allowed column followed by = %s.")
+    if not isinstance(params, (tuple, list)) or len(params) != 1:
+        raise ValidationError("A filter requires exactly one parameter in a tuple or list.")
+    return f"{match.group(1)} = %s", tuple(params)
+
+
+def insert_record(table_name: str, columns_list: Sequence[str], values_tuple: Sequence[Any]) -> int:
+    """Validate and insert one complete core-entity row using ``%s`` values."""
+    columns = _columns_for(table_name, columns_list)
+    if not isinstance(values_tuple, (tuple, list)) or len(columns) != len(values_tuple):
+        raise ValidationError("columns_list and values_tuple must have the same length.")
+    cleaned = validate_entity(table_name, dict(zip(columns, values_tuple)))
+    placeholders = ", ".join(["%s"] * len(columns))
+    return execute_dml(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})", tuple(cleaned[column] for column in columns))
+
+
+def update_record(table_name: str, update_dict: dict[str, Any], condition_str: str, condition_params_tuple: Sequence[Any]) -> int:
+    """Validate and update selected fields using one allow-listed equality filter."""
+    columns = _columns_for(table_name, list(update_dict))
+    cleaned = validate_entity(table_name, update_dict, partial=True)
+    where_sql, where_params = _where_clause(table_name, condition_str, condition_params_tuple)
+    assignments = ", ".join(f"{column} = %s" for column in columns)
+    return execute_dml(f"UPDATE {table_name} SET {assignments} WHERE {where_sql}", tuple(cleaned[column] for column in columns) + where_params)
+
+
+def get_records_by_filter(table_name: str, columns_to_select: Sequence[str], condition_str: str | None = None, params_tuple: Sequence[Any] | None = None):
+    """Read allowed columns, optionally with one parameterized equality filter."""
+    columns = _columns_for(table_name, columns_to_select)
+    query = f"SELECT {', '.join(columns)} FROM {table_name}"
+    if condition_str is None:
+        if params_tuple is not None:
+            raise ValidationError("Parameters require a filter.")
+        return fetch_all_records(query)
+    where_sql, params = _where_clause(table_name, condition_str, params_tuple)
+    return fetch_all_records(f"{query} WHERE {where_sql}", params)

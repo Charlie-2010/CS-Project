@@ -1,116 +1,94 @@
-# connection.py - Implementation placeholder
+"""Small parameterized MySQL data-access layer.
+
+Values must be supplied separately from SQL using MySQL Connector's ``%s``
+placeholders. Never format form values into a query string.
 """
-database/connection.py
-Implements Context-Managed Python to MySQL connectivity protocol.
-Enforces strict Parameterized Query Architecture with %s format specifiers.
-"""
+from __future__ import annotations
 
 import os
+from typing import Any, Sequence, cast
+
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import Error, IntegrityError
+
+
+class DatabaseOperationError(RuntimeError):
+    """Raised when a database operation cannot be completed."""
+
+
+class ConstraintViolationError(DatabaseOperationError):
+    """Raised for duplicate-key and foreign-key/check constraint failures."""
+
 
 def get_connection():
-    """
-    Establishes and returns a raw database connection object.
-    Pulls credentials securely from environment variables, falling back to local defaults.
-    """
+    """Create a connection from environment configuration."""
     try:
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password=os.environ.get("DB_PASSWORD", "your_mysql_password"), # Replace with your password
-            database="student_performance_system"
+        return mysql.connector.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=int(os.getenv("DB_PORT", "3306")),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", ""),
+            database=os.getenv("DB_NAME", "student_performance_system"),
         )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Database Connection Failure: {e}")
-        return None
+    except Error as exc:
+        raise DatabaseOperationError("Could not connect to the database.") from exc
 
-def execute_dml(query, params=None):
-    """
-    Executes Data Manipulation Language (DML) queries (INSERT, UPDATE, DELETE).
-    Uses Python's context managers ('with') to auto-close infrastructure.
-    
-    Args:
-        query (str): The SQL statement featuring safe %s parameter placeholders.
-        params (tuple): Array of data variables matching the %s sequence layout.
-        
-    Returns:
-        int: Total rowcount affected by the transaction, or 0 if failure occurs.
-    """
-    conn = get_connection()
-    if not conn:
-        return 0
-    
-    rows_affected = 0
-    try:
-        # Context management handles cursor close actions natively
-        with conn.cursor() as cursor:
-            if params:
-                # Forces parameters to be evaluated strictly as data, never as commands
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
-                
-            conn.commit()  # Enforce transaction commitment
-            rows_affected = cursor.rowcount
-            
-    except Error as e:
-        print(f"DML Transaction Rollback Triggered. Error: {e}")
-        conn.rollback()  # Protect database integrity by rolling back structural failures
-    finally:
-        if conn:
-            conn.close()  # Clean up connection socket back to pool
-            
-    return rows_affected
 
-def fetch_all_records(query, params=None):
-    """
-    Executes a SELECT query and extracts all resulting relational records.
-    Safely self-cleans resources using context wrappers.
-    """
-    conn = get_connection()
-    if not conn:
-        return []
-        
-    records = []
-    try:
-        with conn.cursor() as cursor:
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
-            records = cursor.fetchall()
-    except Error as e:
-        print(f"[❌] Data Extraction Failure (fetchall): {e}")
-    finally:
-        if conn:
-            conn.close()
-            
-    return records
+def _normalise_params(params: Sequence[Any] | None) -> tuple[Any, ...]:
+    if params is None:
+        return ()
+    if isinstance(params, (str, bytes)) or not isinstance(params, (tuple, list)):
+        raise TypeError("Query parameters must be supplied as a tuple or list.")
+    return tuple(params)
 
-def fetch_single_record(query, params=None):
-    """
-    Executes a SELECT query and extracts exactly one record tuple from the database.
-    Optimized for primary key filters or authentication checks.
-    """
-    conn = get_connection()
-    if not conn:
-        return None
-        
-    record = None
+
+def _validate_query(query: str, params: tuple[Any, ...]) -> None:
+    if not isinstance(query, str) or not query.strip():
+        raise ValueError("SQL query must be a non-empty string.")
+    if params and "%s" not in query:
+        raise ValueError("Parameterized values require %s placeholders in the SQL query.")
+
+
+def execute_dml(query: str, params: Sequence[Any] | None = None) -> int:
+    """Run INSERT/UPDATE/DELETE atomically and return its affected-row count."""
+    bound_params = _normalise_params(params)
+    _validate_query(query, bound_params)
+    connection = get_connection()
     try:
-        with conn.cursor() as cursor:
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
-            record = cursor.fetchone()
-    except Error as e:
-        print(f"[❌] Data Extraction Failure (fetchone): {e}")
+        with connection.cursor() as cursor:
+            cursor.execute(query, bound_params)
+            row_count = cursor.rowcount
+        connection.commit()
+        return row_count
+    except IntegrityError as exc:
+        connection.rollback()
+        raise ConstraintViolationError("The change violates a uniqueness or foreign-key rule.") from exc
+    except Error as exc:
+        connection.rollback()
+        raise DatabaseOperationError("Database write failed; the transaction was rolled back.") from exc
     finally:
-        if conn:
-            conn.close()
-            
-    return record
+        connection.close()
+
+
+def _fetch(query: str, params: Sequence[Any] | None, one: bool):
+    bound_params = _normalise_params(params)
+    _validate_query(query, bound_params)
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, bound_params)
+            return cursor.fetchone() if one else cursor.fetchall()
+    except Error as exc:
+        raise DatabaseOperationError("Database read failed.") from exc
+    finally:
+        connection.close()
+
+
+def fetch_all_records(query: str, params: Sequence[Any] | None = None) -> list[tuple[Any, ...]]:
+    """Run a parameterized SELECT and return all matching records."""
+    return cast(list[tuple[Any, ...]], _fetch(query, params, one=False))
+
+
+def fetch_single_record(query: str, params: Sequence[Any] | None = None):
+    """Run a parameterized SELECT and return one record or ``None``."""
+    return _fetch(query, params, one=True)

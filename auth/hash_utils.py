@@ -1,48 +1,63 @@
-# hash_utils.py - Implementation placeholder
-"""
-auth/hash_utils.py
-Implements password security using SHA-256 with dynamic cryptographic salting.
-"""
+"""Password hashing utilities using Python's salted, memory-hard scrypt."""
 
+from __future__ import annotations
+
+import base64
 import hashlib
+import hmac
 import os
 
-def generate_salt():
-    """
-    Generates a cryptographically secure random 16-byte salt string.
-    Converts binary data to a hexadecimal string for clean text storage.
-    """
-    return os.urandom(16).hex()
+_ALGORITHM, _N, _R, _P = "scrypt", 2**14, 8, 1
 
-def hash_password(plain_text_password, salt):
-    """
-    Hashes a plain-text password combined with a dynamic salt using SHA-256.
-    
-    Args:
-        plain_text_password (str): Raw string entered by the user.
-        salt (str): The unique hexadecimal salt associated with the user profile.
-        
-    Returns:
-        str: A secure 64-character hexadecimal signature string.
-    """
-    # Combine the password string with the unique salt code
-    salted_input = plain_text_password + salt
-    
-    # Encode the combined string to binary format
-    binary_data = salted_input.encode('utf-8')
-    
-    # Compute the cryptographic SHA-256 signature hash
-    sha256_handler = hashlib.sha256(binary_data)
-    
-    return sha256_handler.hexdigest()
 
-def verify_password(stored_hash, input_password, stored_salt):
+def _password_bytes(password: str) -> bytes:
+    if not isinstance(password, str):
+        raise TypeError("password must be a string")
+    if not password:
+        raise ValueError("password cannot be empty")
+    return password.encode("utf-8")
+
+
+def _encode(value: bytes) -> str:
+    return base64.urlsafe_b64encode(value).decode("ascii")
+
+
+def _decode(value: str) -> bytes:
+    return base64.urlsafe_b64decode(value.encode("ascii"))
+
+
+def hash_password(plain_text_password: str) -> str:
+    """Create a random-salted, storage-ready scrypt password hash."""
+    salt = os.urandom(16)
+    key = hashlib.scrypt(_password_bytes(plain_text_password), salt=salt, n=_N, r=_R, p=_P, dklen=32)
+    return f"{_ALGORITHM}${_N}${_R}${_P}${_encode(salt)}${_encode(key)}"
+
+
+def verify_password(stored_hash: str, input_password: str, stored_salt: str | None = None) -> bool:
+    """Constant-time check of an entered password against a stored scrypt hash.
+
+    ``stored_salt`` remains optional only for source compatibility. New hashes
+    include their salt; unsupported legacy SHA-256 hashes are rejected.
     """
-    Validates a login attempt by comparing a fresh hash calculation 
-    against the verified record signature saved in the database.
-    
-    Returns:
-        bool: True if passwords match perfectly, False otherwise.
-    """
-    fresh_hash_attempt = hash_password(input_password, stored_salt)
-    return fresh_hash_attempt == stored_hash
+    del stored_salt
+    try:
+        algorithm, n, r, p, encoded_salt, encoded_key = stored_hash.split("$")
+        if algorithm != _ALGORITHM:
+            return False
+        expected_key = _decode(encoded_key)
+        actual_key = hashlib.scrypt(
+            _password_bytes(input_password), salt=_decode(encoded_salt),
+            n=int(n), r=int(r), p=int(p), dklen=len(expected_key),
+        )
+        return hmac.compare_digest(actual_key, expected_key)
+    except (AttributeError, TypeError, ValueError, UnicodeError):
+        return False
+
+
+def needs_rehash(stored_hash: str) -> bool:
+    """Identify malformed, legacy, or weaker hashes for replacement at login."""
+    try:
+        algorithm, n, r, p, *_ = stored_hash.split("$")
+        return (algorithm, int(n), int(r), int(p)) != (_ALGORITHM, _N, _R, _P)
+    except (AttributeError, ValueError):
+        return True

@@ -11,8 +11,7 @@ USE student_performance_system;
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(64) NOT NULL,  -- SHA-256 outputs exactly 64 characters
-    password_salt VARCHAR(32) NOT NULL,  -- Hex-encoded 16 bytes outputs exactly 32 characters
+    password_hash VARCHAR(255) NOT NULL, -- salted scrypt hash plus parameters
     role ENUM('teacher', 'student') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -48,14 +47,15 @@ CREATE TABLE classes (
 CREATE TABLE students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    roll_number VARCHAR(20) UNIQUE NOT NULL,
+    roll_number VARCHAR(20) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     date_of_birth DATE NOT NULL,
     class_id INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL
+    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL,
+    UNIQUE KEY unique_roll_number_per_class (class_id, roll_number)
 );
 
 -- ============================================================================

@@ -18,6 +18,11 @@ _COLUMNS = {
     "classes": {"class_name", "room_number", "class_teacher_id"},
     "subjects": {"subject_name", "subject_code"},
 }
+_FILTER_COLUMNS = {table: set(columns) for table, columns in _COLUMNS.items()}
+_FILTER_COLUMNS["students"].add("student_id")
+_FILTER_COLUMNS["teachers"].add("teacher_id")
+_FILTER_COLUMNS["classes"].add("class_id")
+_FILTER_COLUMNS["subjects"].add("subject_id")
 _EQUALITY = re.compile(r"^\s*([a-z_]+)\s*=\s*%s\s*$")
 
 
@@ -31,7 +36,7 @@ def _columns_for(table_name: str, columns: Sequence[str]) -> list[str]:
 
 def _where_clause(table_name: str, condition: str, params: Sequence[Any] | None) -> tuple[str, tuple[Any, ...]]:
     match = _EQUALITY.fullmatch(condition or "")
-    if not match or match.group(1) not in _COLUMNS[table_name]:
+    if not match or match.group(1) not in _FILTER_COLUMNS[table_name]:
         raise ValidationError("Filters must be one allowed column followed by = %s.")
     if not isinstance(params, (tuple, list)) or len(params) != 1:
         raise ValidationError("A filter requires exactly one parameter in a tuple or list.")
@@ -55,6 +60,14 @@ def update_record(table_name: str, update_dict: dict[str, Any], condition_str: s
     where_sql, where_params = _where_clause(table_name, condition_str, condition_params_tuple)
     assignments = ", ".join(f"{column} = %s" for column in columns)
     return execute_dml(f"UPDATE {table_name} SET {assignments} WHERE {where_sql}", tuple(cleaned[column] for column in columns) + where_params)
+
+
+def delete_record(table_name: str, condition_str: str, condition_params_tuple: Sequence[Any]) -> int:
+    """Delete matching rows only when a non-empty allow-listed filter is provided."""
+    if table_name not in _COLUMNS:
+        raise ValidationError(f"Unsupported table: {table_name!r}.")
+    where_sql, where_params = _where_clause(table_name, condition_str, condition_params_tuple)
+    return execute_dml(f"DELETE FROM {table_name} WHERE {where_sql}", where_params)
 
 
 def get_records_by_filter(table_name: str, columns_to_select: Sequence[str], condition_str: str | None = None, params_tuple: Sequence[Any] | None = None):

@@ -5,32 +5,65 @@ placeholders. Never format form values into a query string.
 """
 from __future__ import annotations
 
-import os
-from typing import Any, Sequence, cast
+from dataclasses import dataclass
+from typing import Any, Callable, Sequence, TypeVar, cast
 
 import mysql.connector
 from mysql.connector import Error, IntegrityError
+from config import DatabaseConfig
 
 
 class DatabaseOperationError(RuntimeError):
     """Raised when a database operation cannot be completed."""
+
+    def __init__(self, message: str, *, code: int | None = None, category: str = "database"):
+        super().__init__(message)
+        self.code = code
+        self.category = category
 
 
 class ConstraintViolationError(DatabaseOperationError):
     """Raised for duplicate-key and foreign-key/check constraint failures."""
 
 
+class DatabaseUnavailableError(DatabaseOperationError):
+    """Raised when a configured database connection cannot be opened."""
+
+
+T = TypeVar("T")
+
+
+@dataclass(frozen=True)
+class TransactionResult:
+    value: Any
+    row_count: int
+    lastrowid: int | None
+
+
+_CONSTRAINT_ERROR_CODES = {1062, 1451, 1452, 3819}
+_ERROR_MESSAGES = {
+    1048: "A required value is missing.",
+    1062: "A record with that unique value already exists.",
+    1451: "This record is still referenced by other records.",
+    1452: "A related record does not exist.",
+    3819: "The record violates a database check constraint.",
+}
+
+
+def _mapped_error(error: Error) -> DatabaseOperationError:
+    code = getattr(error, "errno", None)
+    message = _ERROR_MESSAGES.get(code, "The database operation failed.") if isinstance(code, int) else "The database operation failed."
+    if isinstance(error, IntegrityError) or code in _CONSTRAINT_ERROR_CODES:
+        return ConstraintViolationError(message, code=code, category="constraint")
+    return DatabaseOperationError(message, code=code)
+
+
 def get_connection():
-    """Create a connection from environment configuration, or return ``None``."""
+    """Create a connection using the environment-backed application config."""
     try:
-        return mysql.connector.connect(
-            host=os.getenv("DB_HOST", "localhost"),
-            port=int(os.getenv("DB_PORT", "3306")),
-            user=os.getenv("DB_USER", "root"),
-            password=os.getenv("DB_PASSWORD", ""),
-            database=os.getenv("DB_NAME", "student_performance_system"),
-        )
-    except Error:
+        settings = DatabaseConfig.from_env()
+        return mysql.connector.connect(**settings.__dict__)
+    except (Error, ValueError):
         # Callers can show a clean unavailable-state message instead of crashing
         # when DB_PASSWORD is absent or incorrect.
         return None
@@ -51,27 +84,33 @@ def _validate_query(query: str, params: tuple[Any, ...]) -> None:
         raise ValueError("Parameterized values require %s placeholders in the SQL query.")
 
 
-def execute_dml(query: str, params: Sequence[Any] | None = None) -> int:
-    """Run INSERT/UPDATE/DELETE atomically and return its affected-row count."""
-    bound_params = _normalise_params(params)
-    _validate_query(query, bound_params)
+def execute_transaction(operation: Callable[[Any], T]) -> TransactionResult:
+    """Run cursor work on one connection and commit once, rolling back on failure."""
     connection = get_connection()
     if connection is None:
-        return 0
+        raise DatabaseUnavailableError("The database is unavailable.", category="unavailable")
     try:
         with connection.cursor() as cursor:
-            cursor.execute(query, bound_params)
+            value = operation(cursor)
             row_count = cursor.rowcount
+            lastrowid = cursor.lastrowid
         connection.commit()
-        return row_count
-    except IntegrityError:
+        return TransactionResult(value, row_count, lastrowid)
+    except Error as error:
         connection.rollback()
-        return 0
-    except Error:
+        raise _mapped_error(error) from error
+    except Exception:
         connection.rollback()
-        return 0
+        raise
     finally:
         connection.close()
+
+
+def execute_dml(query: str, params: Sequence[Any] | None = None) -> int:
+    """Run one parameterized DML statement and return affected rows on success."""
+    bound_params = _normalise_params(params)
+    _validate_query(query, bound_params)
+    return execute_transaction(lambda cursor: cursor.execute(query, bound_params)).row_count
 
 
 def _fetch(query: str, params: Sequence[Any] | None, one: bool):
@@ -79,13 +118,13 @@ def _fetch(query: str, params: Sequence[Any] | None, one: bool):
     _validate_query(query, bound_params)
     connection = get_connection()
     if connection is None:
-        return None if one else []
+        raise DatabaseUnavailableError("The database is unavailable.", category="unavailable")
     try:
         with connection.cursor() as cursor:
             cursor.execute(query, bound_params)
             return cursor.fetchone() if one else cursor.fetchall()
-    except Error:
-        return None if one else []
+    except Error as error:
+        raise _mapped_error(error) from error
     finally:
         connection.close()
 

@@ -1,8 +1,5 @@
 
-# widgets.py - Entry placeholder
-
-# ui/widgets.py
-# Reusable widgets used throughout ScholarSync
+"""Reusable Tkinter widgets used throughout ScholarSync."""
 
 import tkinter as tk
 from tkinter import ttk

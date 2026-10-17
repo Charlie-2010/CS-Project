@@ -23,3 +23,10 @@ This initial phase establishes the core relational data layer, secure transactio
 • Cryptographic Credential Hardening: Uses Python's memory-hard scrypt hashing with a unique random salt embedded in every stored password hash.
 • Dynamic Salting Defenses: Generates unique, high-entropy 16-byte random salt values (os.urandom) for every single credential profile during registration. By appending these strings before hashing, it creates highly differentiated database signatures to completely nullify pre-computed Rainbow Table dictionary cracking exploits.
 • Universal Parameterized Utility Layers: Implements clean database transaction abstractions (insert_record, update_record, get_records_by_filter) across the application utilities. By enforcing tuple-based parameterized variables matched against strict %s positional tokens, it guarantees that all frontend form elements treat inputs strictly as literal data values, completely blocking SQL Injection vulnerabilities.
+## Local test logins
+
+After loading `database/schema.sql` and `database/seed.sql`, the six sample
+usernames `t_albert`, `t_marie`, `t_isaac`, `s_charlie`, `s_linus`, and `s_ada`
+all use the development-only password `ChangeMe123!`. Set `DB_PASSWORD` in your
+local environment before running database-dependent tests; never commit its value.
+

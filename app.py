@@ -1,26 +1,34 @@
-# app.py - Entry placeholder
-
 import tkinter as tk
 from tkinter import messagebox
 from pathlib import Path
+
+from auth.login import WrongRoleError, authenticate_user
+from database.connection import DatabaseOperationError
+from student.dashboard import build_dashboard as build_student_dashboard
+from teacher import classes as class_screen
+from teacher import students as student_screen
+from teacher import subjects as subject_screen
+from teacher import teachers as teacher_screen
+from teacher.dashboard import build_dashboard as build_teacher_dashboard
+from ui import theme
+from ui.widgets import make_button, make_entry, make_label
 
 
 class ScholarSync:
     def __init__(self, root):
         self.root = root
         self.root.title("ScholarSync")
-        self.root.geometry("900x580")
+        self.root.geometry(theme.WINDOW_SIZE)
         self.root.minsize(750, 500)
 
-        # Colours
-        self.bg = "#F3F7FC"
-        self.blue = "#2463A6"
-        self.dark_blue = "#174778"
-        self.light_blue = "#DCEBFA"
-        self.text = "#1D3553"
-        self.muted = "#6B7F99"
-        self.border = "#D8E4F0"
-        self.white = "#FFFFFF"
+        self.bg = theme.BG
+        self.blue = theme.PRIMARY
+        self.dark_blue = theme.PRIMARY_DARK
+        self.light_blue = theme.ACCENT
+        self.text = theme.TEXT
+        self.muted = theme.MUTED
+        self.border = theme.BORDER
+        self.white = theme.WHITE
 
         self.root.configure(bg=self.bg)
 
@@ -133,7 +141,7 @@ class ScholarSync:
         self.portal_card(
             portals,
             "Teacher",
-            "Manage students and results.",
+            "Manage students, teachers, and classes.",
             self.light_blue,
             self.dark_blue,
             lambda: self.login_page("Teacher")
@@ -183,20 +191,7 @@ class ScholarSync:
             justify="left"
         ).pack(anchor="w", pady=(0, 25))
 
-        tk.Button(
-            card,
-            text="Continue",
-            command=command,
-            font=("Segoe UI", 10, "bold"),
-            bg=self.light_blue if card_bg == self.blue else self.blue,
-            fg=self.dark_blue if card_bg == self.blue else self.white,
-            activebackground=self.border,
-            activeforeground=self.dark_blue,
-            relief="flat",
-            cursor="hand2",
-            padx=18,
-            pady=10
-        ).pack(anchor="w")
+        make_button(card, "Continue", command, primary=card_bg != self.blue).pack(anchor="w")
 
         return card
 
@@ -249,13 +244,8 @@ class ScholarSync:
             fg=self.text
         ).pack(anchor="w")
 
-        username = tk.Entry(
-            card,
-            font=("Segoe UI", 11),
-            width=30,
-            relief="solid",
-            bd=1
-        )
+        username = make_entry(card)
+        username.config(width=30)
         username.pack(fill="x", ipady=7, pady=(6, 16))
 
         tk.Label(
@@ -266,30 +256,10 @@ class ScholarSync:
             fg=self.text
         ).pack(anchor="w")
 
-        password = tk.Entry(
-            card,
-            font=("Segoe UI", 11),
-            show="*",
-            relief="solid",
-            bd=1
-        )
+        password = make_entry(card, show="*")
         password.pack(fill="x", ipady=7, pady=(6, 22))
 
-        tk.Button(
-            card,
-            text="Sign in",
-            command=lambda: self.login(
-                role, username.get(), password.get()
-            ),
-            font=("Segoe UI", 10, "bold"),
-            bg=self.blue,
-            fg=self.white,
-            activebackground=self.dark_blue,
-            activeforeground=self.white,
-            relief="flat",
-            cursor="hand2",
-            pady=10
-        ).pack(fill="x")
+        make_button(card, "Sign in", lambda: self.login(role, username.get(), password.get())).pack(fill="x")
 
         username.focus_set()
 
@@ -301,10 +271,54 @@ class ScholarSync:
             )
             return
 
-        messagebox.showinfo(
-            "Database connection",
-            role + " login has not been connected to MySQL yet."
-        )
+        try:
+            session = authenticate_user(username, password, role.lower())
+        except WrongRoleError as error:
+            messagebox.showerror("Wrong portal", str(error), parent=self.root)
+            return
+        except DatabaseOperationError as error:
+            messagebox.showerror("Database unavailable", str(error), parent=self.root)
+            return
+        if session is None:
+            messagebox.showerror("Sign-in failed", "The username or password is incorrect.", parent=self.root)
+            return
+        self.show_dashboard(session)
+
+    def show_dashboard(self, session):
+        self.clear_page()
+        header = tk.Frame(self.root, bg=self.bg, padx=24, pady=12)
+        header.pack(fill="x")
+        make_label(header, f"ScholarSync  /  {session.username}", size=14, bold=True,
+                   color=self.dark_blue).pack(side="left")
+        make_button(header, "Sign out", self.sign_out, primary=False).pack(side="right")
+        self.content = tk.Frame(self.root, bg=self.bg, padx=24, pady=18)
+        self.content.pack(fill="both", expand=True)
+        self.session = session
+        self.navigate("dashboard")
+
+    def sign_out(self):
+        self.session = None
+        self.home_page()
+
+    def navigate(self, page):
+        for widget in self.content.winfo_children():
+            widget.destroy()
+        session = self.session
+        if session is None:
+            return
+        if session.role == "student":
+            view = build_student_dashboard(self.content, session)
+        elif page == "students":
+            view = student_screen.build_page(self.content, session, lambda: self.navigate("dashboard"))
+        elif page == "classes":
+            view = class_screen.build_page(self.content, session, lambda: self.navigate("dashboard"))
+        elif page == "teachers":
+            view = teacher_screen.build_page(self.content, session, lambda: self.navigate("dashboard"))
+        elif page == "subjects":
+            view = subject_screen.build_page(self.content, session, lambda: self.navigate("dashboard"))
+        else:
+            view = build_teacher_dashboard(self.content, session, self.navigate)
+        view.pack(fill="both", expand=True)
 
 
 if __name__ == "__main__":

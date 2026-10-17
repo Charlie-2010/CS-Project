@@ -1,4 +1,4 @@
-# schema.sql - Implementation placeholder
+-- ScholarSync relational schema.
 -- ============================================================================
 -- DATABASE INITIALIZATION
 -- ============================================================================
@@ -56,8 +56,33 @@ CREATE TABLE IF NOT EXISTS students (
     class_id INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL,
-    UNIQUE KEY unique_roll_number_per_class (class_id, roll_number)
+    UNIQUE KEY unique_roll_number (roll_number)
 );
+
+-- Migrate databases created with the earlier per-class roll-number index.
+SET @drop_per_class_roll_index = (
+    SELECT IF(COUNT(*) > 0,
+        'ALTER TABLE students DROP INDEX unique_roll_number_per_class',
+        'SELECT 1')
+    FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students'
+      AND INDEX_NAME = 'unique_roll_number_per_class'
+);
+PREPARE drop_per_class_roll_index FROM @drop_per_class_roll_index;
+EXECUTE drop_per_class_roll_index;
+DEALLOCATE PREPARE drop_per_class_roll_index;
+
+SET @add_global_roll_index = (
+    SELECT IF(COUNT(*) = 0,
+        'ALTER TABLE students ADD UNIQUE KEY unique_roll_number (roll_number)',
+        'SELECT 1')
+    FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students'
+      AND INDEX_NAME = 'unique_roll_number'
+);
+PREPARE add_global_roll_index FROM @add_global_roll_index;
+EXECUTE add_global_roll_index;
+DEALLOCATE PREPARE add_global_roll_index;
 
 -- ============================================================================
 -- 5. SUBJECTS TABLE

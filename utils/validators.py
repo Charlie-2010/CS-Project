@@ -1,13 +1,17 @@
 """Validation for data written to students, teachers, classes, and subjects."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 import re
 from typing import Any, Callable
 
 
 class ValidationError(ValueError):
     """Raised when form data cannot satisfy the database schema."""
+
+    def __init__(self, errors: dict[str, str] | str):
+        self.errors = errors if isinstance(errors, dict) else {"_form": errors}
+        super().__init__("; ".join(f"{field}: {message}" for field, message in self.errors.items()))
 
 
 _EMAIL = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
@@ -39,27 +43,49 @@ def _email(value: Any) -> str:
 
 
 def _dob(value: Any) -> date:
+    if isinstance(value, datetime):
+        value = value.date()
     if isinstance(value, date):
-        return value
-    if isinstance(value, str):
+        parsed = value
+    elif isinstance(value, str):
         try:
-            return date.fromisoformat(value)
+            parsed = date.fromisoformat(value)
         except ValueError as exc:
             raise ValidationError("date_of_birth must use YYYY-MM-DD.") from exc
-    raise ValidationError("date_of_birth must be a date or YYYY-MM-DD string.")
+    else:
+        raise ValidationError("date_of_birth must be a date or YYYY-MM-DD string.")
+    today = date.today()
+    earliest = date(today.year - 120, today.month, today.day)
+    if parsed > today:
+        raise ValidationError("date_of_birth cannot be in the future.")
+    if parsed < earliest:
+        raise ValidationError("date_of_birth must be within the last 120 years.")
+    return parsed
 
 
 def _validate(data: dict[str, Any], rules: dict[str, Callable[[Any], Any]], partial: bool) -> dict[str, Any]:
     if not isinstance(data, dict):
-        raise ValidationError("Entity data must be a dictionary.")
+        raise ValidationError({"_form": "Entity data must be a dictionary."})
+    errors: dict[str, str] = {}
     unknown = set(data) - set(rules)
     if unknown:
-        raise ValidationError(f"Unsupported fields: {', '.join(sorted(unknown))}.")
+        for field in sorted(unknown):
+            errors[field] = "Unsupported field."
     if not partial:
         missing = set(rules) - set(data)
-        if missing:
-            raise ValidationError(f"Missing required fields: {', '.join(sorted(missing))}.")
-    return {field: rules[field](value) for field, value in data.items()}
+        for field in sorted(missing):
+            errors[field] = "Required field is missing."
+    cleaned = {}
+    for field, value in data.items():
+        if field not in rules:
+            continue
+        try:
+            cleaned[field] = rules[field](value)
+        except ValidationError as error:
+            errors[field] = str(error).split(": ", 1)[-1]
+    if errors:
+        raise ValidationError(errors)
+    return cleaned
 
 
 def validate_student(data: dict[str, Any], *, partial: bool = False) -> dict[str, Any]:

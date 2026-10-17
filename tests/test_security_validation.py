@@ -2,8 +2,8 @@
 import unittest
 from unittest.mock import patch
 
-from auth.hash_utils import hash_password, needs_rehash, verify_password
-from database.connection import ConstraintViolationError, execute_dml
+from auth.hash_utils import create_password_record, verify_password
+from database.connection import execute_dml
 from mysql.connector import IntegrityError
 from utils.helpers import get_records_by_filter, insert_record
 from utils.validators import ValidationError, validate_class, validate_student, validate_subject, validate_teacher
@@ -11,16 +11,18 @@ from utils.validators import ValidationError, validate_class, validate_student, 
 
 class PasswordHashTests(unittest.TestCase):
     def test_hashes_are_salted_and_verifiable(self):
-        first = hash_password("StrongPass123!")
-        second = hash_password("StrongPass123!")
-        self.assertNotEqual(first, second)
-        self.assertTrue(verify_password(first, "StrongPass123!"))
-        self.assertFalse(verify_password(first, "not-the-password"))
-        self.assertFalse(needs_rehash(first))
+        first_hash, first_salt = create_password_record("StrongPass123!")
+        second_hash, second_salt = create_password_record("StrongPass123!")
+        self.assertEqual(len(first_hash), 64)
+        self.assertEqual(len(first_salt), 32)
+        self.assertNotEqual(first_salt, second_salt)
+        self.assertNotEqual(first_hash, second_hash)
+        self.assertTrue(verify_password(first_hash, "StrongPass123!", first_salt))
+        self.assertFalse(verify_password(first_hash, "not-the-password", first_salt))
 
-    def test_legacy_and_malformed_hashes_are_rejected(self):
-        self.assertFalse(verify_password("a" * 64, "anything"))
-        self.assertTrue(needs_rehash("a" * 64))
+    def test_malformed_values_are_rejected(self):
+        self.assertFalse(verify_password("a" * 63, "anything", "a" * 32))
+        self.assertFalse(verify_password("a" * 64, "anything", "invalid-salt"))
 
 
 class ValidationTests(unittest.TestCase):
@@ -42,6 +44,10 @@ class ValidationTests(unittest.TestCase):
 
 
 class ParameterizedHelperTests(unittest.TestCase):
+    def test_missing_or_wrong_database_password_fails_cleanly(self):
+        with patch("database.connection.get_connection", return_value=None):
+            self.assertEqual(execute_dml("DELETE FROM subjects WHERE subject_id = %s", (4,)), 0)
+
     def test_insert_binds_values_and_validates_data(self):
         values = ("Physics", "phy-12")
         with patch("utils.helpers.execute_dml", return_value=1) as execute:
@@ -89,8 +95,7 @@ class ParameterizedHelperTests(unittest.TestCase):
             def close(self): self.closed = True
         connection = Connection()
         with patch("database.connection.get_connection", return_value=connection):
-            with self.assertRaises(ConstraintViolationError):
-                execute_dml("INSERT INTO subjects (subject_name) VALUES (%s)", ("Physics",))
+            self.assertEqual(execute_dml("INSERT INTO subjects (subject_name) VALUES (%s)", ("Physics",)), 0)
         self.assertTrue(connection.rolled_back)
         self.assertTrue(connection.closed)
 

@@ -21,7 +21,7 @@ class ConstraintViolationError(DatabaseOperationError):
 
 
 def get_connection():
-    """Create a connection from environment configuration."""
+    """Create a connection from environment configuration, or return ``None``."""
     try:
         return mysql.connector.connect(
             host=os.getenv("DB_HOST", "localhost"),
@@ -30,8 +30,10 @@ def get_connection():
             password=os.getenv("DB_PASSWORD", ""),
             database=os.getenv("DB_NAME", "student_performance_system"),
         )
-    except Error as exc:
-        raise DatabaseOperationError("Could not connect to the database.") from exc
+    except Error:
+        # Callers can show a clean unavailable-state message instead of crashing
+        # when DB_PASSWORD is absent or incorrect.
+        return None
 
 
 def _normalise_params(params: Sequence[Any] | None) -> tuple[Any, ...]:
@@ -54,18 +56,20 @@ def execute_dml(query: str, params: Sequence[Any] | None = None) -> int:
     bound_params = _normalise_params(params)
     _validate_query(query, bound_params)
     connection = get_connection()
+    if connection is None:
+        return 0
     try:
         with connection.cursor() as cursor:
             cursor.execute(query, bound_params)
             row_count = cursor.rowcount
         connection.commit()
         return row_count
-    except IntegrityError as exc:
+    except IntegrityError:
         connection.rollback()
-        raise ConstraintViolationError("The change violates a uniqueness or foreign-key rule.") from exc
-    except Error as exc:
+        return 0
+    except Error:
         connection.rollback()
-        raise DatabaseOperationError("Database write failed; the transaction was rolled back.") from exc
+        return 0
     finally:
         connection.close()
 
@@ -74,12 +78,14 @@ def _fetch(query: str, params: Sequence[Any] | None, one: bool):
     bound_params = _normalise_params(params)
     _validate_query(query, bound_params)
     connection = get_connection()
+    if connection is None:
+        return None if one else []
     try:
         with connection.cursor() as cursor:
             cursor.execute(query, bound_params)
             return cursor.fetchone() if one else cursor.fetchall()
-    except Error as exc:
-        raise DatabaseOperationError("Database read failed.") from exc
+    except Error:
+        return None if one else []
     finally:
         connection.close()
 

@@ -1,1 +1,21 @@
-# theme.py - Entry placeholder
+BG = "#F3F7FC"
+WHITE = "#FFFFFF"
+
+PRIMARY = "#2463A6"
+PRIMARY_DARK = "#174778"
+ACCENT = "#DCEBFA"
+
+TEXT = "#1D3553"
+MUTED = "#6B7F99"
+BORDER = "#D8E4F0"
+ERROR = "#C0392B"
+
+FONT = "Segoe UI"
+
+TITLE_FONT = (FONT, 22, "bold")
+HEADING_FONT = (FONT, 15, "bold")
+BODY_FONT = (FONT, 10)
+SMALL_FONT = (FONT, 9)
+
+WINDOW_TITLE = "ScholarSync"
+WINDOW_SIZE = "1000x650"

@@ -3,6 +3,8 @@ USE student_performance_system;
 
 -- Clear any pre-existing rows before seeding (in reverse constraint order)
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE assignments;
+TRUNCATE TABLE attendance;
 TRUNCATE TABLE exam_results;
 TRUNCATE TABLE exam_subjects;
 TRUNCATE TABLE exams;
@@ -15,15 +17,17 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================
--- 1. POPULATE USERS (Passwords represented as mock SHA-256 strings)
+-- 1. POPULATE USERS
+-- Development password for each sample account: ChangeMe123!
+-- Hashes use PBKDF2-HMAC-SHA256; never use this password outside local demos.
 -- ============================================================================
-INSERT INTO users (user_id, username, password_hash, role) VALUES
-(1, 't_albert', 'e9c0f8b801f1f9e2e6b2016da01f9b33a7e584', 'teacher'),
-(2, 't_marie', 'b5c0f8b801f1f9e2e6b2016da01f9b33a7e585', 'teacher'),
-(3, 't_isaac', 'a4c0f8b801f1f9e2e6b2016da01f9b33a7e586', 'teacher'),
-(4, 's_charlie', '7c4a8d09ca3762af61e59520943dc26494f8941', 'student'),
-(5, 's_linus', '8d4a8d09ca3762af61e59520943dc26494f8942', 'student'),
-(6, 's_ada', '9e4a8d09ca3762af61e59520943dc26494f8943', 'student');
+INSERT INTO users (user_id, username, password_hash, password_salt, role) VALUES
+(1, 't_albert', '5d9fd92205fd1edef95cdcc836f3b6bd71d75e699bbd0753129468f18736bd71', 'fc9481e54ab03957102477fe6a03dd22', 'teacher'),
+(2, 't_marie', '9571a0156501611109243bf174a24045fa94403dceaa101f267214ae42ac19c0', '8bc7fc5dcc969ca37edc0eab6074a7f3', 'teacher'),
+(3, 't_isaac', '8038e15418911a3e1ba7e21860a381c498dc0cb5943efd25d308220764a46624', '4d7ce5215ca0eda11160af540271b766', 'teacher'),
+(4, 's_charlie', '2342b0f71a4eacf1afd97f8181f2263f0103fdff2f1825123d0b3e4f58730a54', 'c9a43bdae9a98cbd8bc8aa1200427323', 'student'),
+(5, 's_linus', 'dd8217b7223f7b7d4790dc36a0b9c4053a01b103b0c78b81ebaa43055a913914', 'e5f8ebe1e1bc47bbbee098808ccba0ba', 'student'),
+(6, 's_ada', '5cedc67ab535b6b290dedee42ad0fe77e796d0457d2067ed1803ecb6c08b31fa', '9d295de09b1107e51a445c95c0a4d4ba', 'student');
 
 -- ============================================================================
 -- 2. POPULATE TEACHERS
@@ -81,3 +85,21 @@ INSERT INTO exam_subjects (exam_subject_id, exam_id, subject_id, class_id, exam_
 (1, 1, 1, 1, '2026-10-15', 100.00, 33.00), -- 12-A Physics Mid-Term
 (2, 1, 3, 1, '2026-10-17', 100.00, 33.00), -- 12-A Math Mid-Term
 (3, 1, 4, 1, '2026-10-19', 50.00, 17.00);  -- 12-A CS Mid-Term
+
+-- ============================================================================
+-- 9-11. RESULTS, ATTENDANCE, AND ASSIGNMENTS (all remaining tables non-empty)
+-- ============================================================================
+INSERT INTO exam_results (student_id, exam_subject_id, marks_obtained, remarks) VALUES
+(1, 1, 91.00, 'Excellent'),
+(1, 2, 88.00, 'Very good'),
+(1, 3, 47.00, 'Strong practical work');
+
+INSERT INTO attendance (student_id, class_id, date, status) VALUES
+(1, 1, '2026-10-14', 'Present'),
+(2, 1, '2026-10-14', 'Present'),
+(3, 2, '2026-10-14', 'Late');
+
+INSERT INTO assignments (title, description, class_id, subject_id, teacher_id, due_date, max_points) VALUES
+('Physics Numericals', 'Complete the assigned numerical problems.', 1, 1, 1, '2026-10-25', 20),
+('Chemistry Revision', 'Revise bonding and submit notes.', 1, 2, 2, '2026-10-26', 20),
+('Mathematics Practice', 'Solve the calculus worksheet.', 1, 3, 3, '2026-10-27', 25);

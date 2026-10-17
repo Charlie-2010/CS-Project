@@ -8,11 +8,11 @@ USE student_performance_system;
 -- ============================================================================
 -- 1. USERS TABLE (Unified authentication for both Teacher & Student personas)
 -- ============================================================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(64) NOT NULL,  -- SHA-256 outputs exactly 64 characters
-    password_salt VARCHAR(32) NOT NULL,  -- Hex-encoded 16 bytes outputs exactly 32 characters
+    password_hash CHAR(64) NOT NULL,     -- PBKDF2-SHA256 output
+    password_salt CHAR(32) NOT NULL,     -- 16 random bytes encoded as hex
     role ENUM('teacher', 'student') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -21,7 +21,7 @@ CREATE TABLE users (
 -- ============================================================================
 -- 2. TEACHERS TABLE
 -- ============================================================================
-CREATE TABLE teachers (
+CREATE TABLE IF NOT EXISTS teachers (
     teacher_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
     first_name VARCHAR(50) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE teachers (
 -- ============================================================================
 -- 3. CLASSES TABLE (e.g., Grade 10-A, Grade 11-B)
 -- ============================================================================
-CREATE TABLE classes (
+CREATE TABLE IF NOT EXISTS classes (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
     class_name VARCHAR(20) UNIQUE NOT NULL, -- e.g., 'Class 10-A'
     room_number VARCHAR(10),
@@ -45,23 +45,24 @@ CREATE TABLE classes (
 -- ============================================================================
 -- 4. STUDENTS TABLE
 -- ============================================================================
-CREATE TABLE students (
+CREATE TABLE IF NOT EXISTS students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    roll_number VARCHAR(20) UNIQUE NOT NULL,
+    roll_number VARCHAR(20) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     date_of_birth DATE NOT NULL,
     class_id INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL
+    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE SET NULL,
+    UNIQUE KEY unique_roll_number_per_class (class_id, roll_number)
 );
 
 -- ============================================================================
 -- 5. SUBJECTS TABLE
 -- ============================================================================
-CREATE TABLE subjects (
+CREATE TABLE IF NOT EXISTS subjects (
     subject_id INT AUTO_INCREMENT PRIMARY KEY,
     subject_name VARCHAR(50) UNIQUE NOT NULL, -- e.g., 'Mathematics', 'Physics'
     subject_code VARCHAR(10) UNIQUE NOT NULL  -- e.g., 'MATH101'
@@ -70,7 +71,7 @@ CREATE TABLE subjects (
 -- ============================================================================
 -- 6. TEACHER_SUBJECTS TABLE (Many-to-Many allocation mapping course workloads)
 -- ============================================================================
-CREATE TABLE teacher_subjects (
+CREATE TABLE IF NOT EXISTS teacher_subjects (
     allocation_id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_id INT NOT NULL,
     class_id INT NOT NULL,
@@ -84,7 +85,7 @@ CREATE TABLE teacher_subjects (
 -- ============================================================================
 -- 7. EXAMS TABLE (The overarching exam cycle/term metadata)
 -- ============================================================================
-CREATE TABLE exams (
+CREATE TABLE IF NOT EXISTS exams (
     exam_id INT AUTO_INCREMENT PRIMARY KEY,
     exam_name VARCHAR(50) NOT NULL, -- e.g., 'Mid-Term 2026', 'Final Term'
     term VARCHAR(20) NOT NULL,      -- e.g., 'Term 1', 'Term 2'
@@ -94,7 +95,7 @@ CREATE TABLE exams (
 -- ============================================================================
 -- 8. EXAM_SUBJECTS TABLE (Tracks specific exam papers scheduling and max marks)
 -- ============================================================================
-CREATE TABLE exam_subjects (
+CREATE TABLE IF NOT EXISTS exam_subjects (
     exam_subject_id INT AUTO_INCREMENT PRIMARY KEY,
     exam_id INT NOT NULL,
     subject_id INT NOT NULL,
@@ -111,7 +112,7 @@ CREATE TABLE exam_subjects (
 -- ============================================================================
 -- 9. EXAM_RESULTS TABLE (The actual matrix tracking scores against papers)
 -- ============================================================================
-CREATE TABLE exam_results (
+CREATE TABLE IF NOT EXISTS exam_results (
     result_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     exam_subject_id INT NOT NULL,
@@ -125,7 +126,7 @@ CREATE TABLE exam_results (
 -- ============================================================================
 -- 10. ATTENDANCE TABLE
 -- ============================================================================
-CREATE TABLE attendance (
+CREATE TABLE IF NOT EXISTS attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     class_id INT NOT NULL,
@@ -139,7 +140,7 @@ CREATE TABLE attendance (
 -- ============================================================================
 -- 11. ASSIGNMENTS TABLE
 -- ============================================================================
-CREATE TABLE assignments (
+CREATE TABLE IF NOT EXISTS assignments (
     assignment_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT,

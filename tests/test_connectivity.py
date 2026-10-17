@@ -29,10 +29,10 @@ def verify_parameterised_queries():
     student_profile = fetch_single_record(student_query, student_params)
     
     if student_profile:
-        print(f"[✔] Success! Retrieved Student Profile: {student_profile}")
+        print(f"[OK] Success! Retrieved Student Profile: {student_profile}")
         student_id = list(student_profile)[0]
     else:
-        print("[❌] Test 1 Failed: Could not locate student record.")
+        print("[ERROR] Test 1 Failed: Could not locate student record.")
         return
 
     # ------------------------------------------------------------------------
@@ -51,7 +51,7 @@ def verify_parameterised_queries():
     print("\n[Executing Test 2] Fetching multi-parameter report card matrix...")
     report_card_rows = fetch_all_records(report_card_query, report_params)
     
-    print(f"[✔] Success! Retrieved {len(report_card_rows)} graded paper records:")
+    print(f"[OK] Success! Retrieved {len(report_card_rows)} graded paper records:")
     for row in report_card_rows:
         # Unpack variables directly to satisfy the static checking matrix parameters
         subject_name, marks_obtained, max_marks = row

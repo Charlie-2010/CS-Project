@@ -1,3 +1,4 @@
+# app.py - Entry placeholder
 
 import tkinter as tk
 from tkinter import messagebox

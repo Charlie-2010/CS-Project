@@ -1,3 +1,4 @@
+
 BG = "#F3F7FC"
 WHITE = "#FFFFFF"
 
@@ -19,3 +20,4 @@ SMALL_FONT = (FONT, 9)
 
 WINDOW_TITLE = "ScholarSync"
 WINDOW_SIZE = "1000x650"
+

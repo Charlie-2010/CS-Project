@@ -1,1 +1,1 @@
-# attendance.py - Entry placeholder
+# attendance.py - Implementation placeholder

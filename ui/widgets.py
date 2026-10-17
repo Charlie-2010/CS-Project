@@ -1,3 +1,4 @@
+
 # widgets.py - Entry placeholder
 
 # ui/widgets.py

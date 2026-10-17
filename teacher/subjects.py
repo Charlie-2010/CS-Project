@@ -1,1 +1,1 @@
-# subjects.py - Entry placeholder
+# subjects.py - Implementation placeholder

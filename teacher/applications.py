@@ -1,1 +1,0 @@
-# applications.py - Entry placeholder

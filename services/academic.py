@@ -392,7 +392,6 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
         clean_classes: Any = res_classes if res_classes is not None else (0,)
         clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
         clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
-        
         impact = {
             "classes": int(clean_classes[0]),
             "allocations": int(clean_allocations[0]),

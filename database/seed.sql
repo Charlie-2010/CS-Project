@@ -27,10 +27,10 @@ INSERT INTO users (user_id, username, password_hash, password_salt, role) VALUES
 (3, 't_isaac', '8038e15418911a3e1ba7e21860a381c498dc0cb5943efd25d308220764a46624', '4d7ce5215ca0eda11160af540271b766', 'teacher'),
 (4, 's_charlie', '2342b0f71a4eacf1afd97f8181f2263f0103fdff2f1825123d0b3e4f58730a54', 'c9a43bdae9a98cbd8bc8aa1200427323', 'student'),
 (5, 's_linus', 'dd8217b7223f7b7d4790dc36a0b9c4053a01b103b0c78b81ebaa43055a913914', 'e5f8ebe1e1bc47bbbee098808ccba0ba', 'student'),
- (6, 's_ada', '5cedc67ab535b6b290dedee42ad0fe77e796d0457d2067ed1803ecb6c08b31fa', '9d295de09b1107e51a445c95c0a4d4ba', 'student'),
- (7, 's_grace', '7ac1a930f17f1e9c980213317ed873073c1a7648d2041747908469c7bb174040', '441a87ca02dc39033c2d92f13b9558e7', 'student'),
- (8, 's_katherine', '802df7ad90d612eee3a36cb14fd2b78961d048c1f6a73461effd01c0416608ea', '091cce5f7e4b10fceae372df7c9f082f', 'student'),
- (9, 's_dorothy', 'a05d83027a4352399746e71274a1c9de6a22e9c454175475433f26dfc4e18799', 'c83786859025a6ff9459109a7c82a8b2', 'student');
+(6, 's_ada', '5cedc67ab535b6b290dedee42ad0fe77e796d0457d2067ed1803ecb6c08b31fa', '9d295de09b1107e51a445c95c0a4d4ba', 'student'),
+(7, 's_grace', '7ac1a930f17f1e9c980213317ed873073c1a7648d2041747908469c7bb174040', '441a87ca02dc39033c2d92f13b9558e7', 'student'),
+(8, 's_katherine', '802df7ad90d612eee3a36cb14fd2b78961d048c1f6a73461effd01c0416608ea', '091cce5f7e4b10fceae372df7c9f082f', 'student'),
+(9, 's_dorothy', 'a05d83027a4352399746e71274a1c9de6a22e9c454175475433f26dfc4e18799', 'c83786859025a6ff9459109a7c82a8b2', 'student');
 
 -- ============================================================================
 -- 2. POPULATE TEACHERS

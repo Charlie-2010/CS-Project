@@ -382,12 +382,10 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
         _teacher(session)
         if session.teacher_id == teacher_id:
             return ServiceResult(False, error="You cannot delete the account you are currently signed in with.")
-            
         # 1. Fetch raw relationship validation metrics from database records
         res_classes = fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))
         res_allocations = fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))
         res_assignments = fetch_single_record("SELECT COUNT(*) FROM assignments WHERE class_teacher_id = %s", (teacher_id,))
-        
         # 2. Convert database result types into explicit sequence objects to clear protocols
         clean_classes: Any = res_classes if res_classes is not None else (0,)
         clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
@@ -397,27 +395,23 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
             "allocations": int(clean_allocations[0]),
             "assignments": int(clean_assignments[0]),
         }
-        
         if any(impact.values()):
             return ServiceResult(
                 False,
                 data=impact,
                 error="Cannot delete this teacher while classes, allocations, or assignments still reference them.",
-            )
-            
+            ) 
         def delete(cursor):
             cursor.execute("SELECT user_id FROM teachers WHERE teacher_id = %s", (teacher_id,))
             row = cursor.fetchone()
             if row is None:
-                return False
-                
-            # Treat row sequence as open type to ensure bracket safety inside custom database transaction structures
+                return False      
             clean_row: Any = row
             cursor.execute("DELETE FROM users WHERE user_id = %s", (clean_row[0],))
             return cursor.rowcount == 1
-            
+
         return {"deleted": execute_transaction(delete).value}
-        
+
     return _run(operation)
 
 def create_class(session: Session, data: dict[str, Any]) -> ServiceResult:

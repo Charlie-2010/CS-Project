@@ -382,6 +382,7 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
         _teacher(session)
         if session.teacher_id == teacher_id:
             return ServiceResult(False, error="You cannot delete the account you are currently signed in with.")
+<<<<<<< HEAD
             
         # 1. Fetch raw relationship validation metrics from database records
         res_classes = fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))
@@ -393,6 +394,8 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
         clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
         clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
         
+=======
+>>>>>>> e8928334bff1e19b995891ef0629072efc54de1f
         impact = {
             "classes": int(clean_classes[0]),
             "allocations": int(clean_allocations[0]),

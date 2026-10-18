@@ -50,9 +50,14 @@ MySQL checks. Live checks skip when MySQL cannot be reached. Run
 	class deletions show related-row impact before confirmation.
 - Teachers can manage students, teachers, classes, subjects, and teacher-subject
 	allocations. Referenced teacher deletions are rejected with a clear message.
+<<<<<<< HEAD
 - Both dashboards load from services and include a reserved Matplotlib chart
 	area. The student dashboard shows report-card and attendance summaries; the
 	teacher dashboard shows student/class counts and upcoming assignments.
+=======
+- Both dashboards load from services and include report-card/attendance views,
+	assignments, and a reserved Matplotlib chart area.
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 ## Run
 
@@ -60,6 +65,7 @@ MySQL checks. Live checks skip when MySQL cannot be reached. Run
 2. Set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` for MySQL.
 3. Apply `database/schema.sql`, then `database/seed.sql`.
 4. Start the app with `py app.py`.
+<<<<<<< HEAD
 5. Run checks with `py -m unittest discover -s tests -v`.
 
 ## Create a Submission Zip
@@ -74,3 +80,6 @@ $files = Get-ChildItem -Force -Recurse -File | Where-Object {
 }
 Compress-Archive -Path $files.FullName -DestinationPath .\Build.zip -Force
 ```
+=======
+5. Run checks with `py -m unittest discover -s tests -v`.
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f

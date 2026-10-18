@@ -1,6 +1,9 @@
 """Offline unit tests for credential security and schema-aware validation."""
 import unittest
+<<<<<<< HEAD
 from datetime import date, timedelta
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 from pathlib import Path
 from unittest.mock import patch
 
@@ -15,7 +18,10 @@ from database.connection import (
 )
 from mysql.connector import IntegrityError
 from services.academic import create_student, create_teacher, delete_teacher, list_students, update_class
+<<<<<<< HEAD
 from app import ScholarSync
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 from utils.helpers import delete_record, get_records_by_filter, insert_record
 from utils.validators import ValidationError, validate_class, validate_student, validate_subject, validate_teacher
 
@@ -82,6 +88,7 @@ class ValidationTests(unittest.TestCase):
             validate_teacher({"user_id": 1, "first_name": "N" * 51, "last_name": "Valid", "email": "bad", "phone": None})
         self.assertEqual(set(raised.exception.errors), {"first_name", "email"})
 
+<<<<<<< HEAD
     def test_date_of_birth_rejects_future_and_implausible_dates(self):
         future = (date.today() + timedelta(days=1)).isoformat()
         valid_student = {
@@ -92,6 +99,8 @@ class ValidationTests(unittest.TestCase):
             with self.subTest(date_of_birth=dob), self.assertRaises(ValidationError):
                 validate_student({**valid_student, "date_of_birth": dob})
 
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
     def test_schema_enforces_global_roll_number_uniqueness(self):
         schema_path = Path(__file__).parents[1] / "database" / "schema.sql"
         schema = schema_path.read_text(encoding="utf-8")
@@ -198,6 +207,7 @@ class ServiceBoundaryTests(unittest.TestCase):
         self.assertEqual(result.data, {"classes": 1, "allocations": 0, "assignments": 2})
         self.assertEqual(fetch.call_count, 3)
 
+<<<<<<< HEAD
     def test_teacher_cannot_delete_their_own_active_account(self):
         teacher = Session(2, "teacher", "teacher", teacher_id=7)
         with patch("services.academic.fetch_single_record") as fetch, \
@@ -208,6 +218,8 @@ class ServiceBoundaryTests(unittest.TestCase):
         fetch.assert_not_called()
         transaction.assert_not_called()
 
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
     def test_teacher_create_inserts_account_and_profile_in_one_transaction(self):
         class Cursor:
             rowcount = 1
@@ -379,6 +391,7 @@ class ParameterizedHelperTests(unittest.TestCase):
                 execute_transaction(lambda cursor: (_ for _ in ()).throw(ValueError("fail after first write")))
         self.assertEqual(connection.rollbacks, 1)
 
+<<<<<<< HEAD
 
 class ApplicationSessionTests(unittest.TestCase):
     def test_sign_out_clears_session_before_returning_home(self):
@@ -389,6 +402,8 @@ class ApplicationSessionTests(unittest.TestCase):
         self.assertIsNone(application.session)
         home_page.assert_called_once_with()
 
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 if __name__ == "__main__":
     unittest.main()

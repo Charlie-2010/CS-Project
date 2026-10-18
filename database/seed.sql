@@ -56,7 +56,11 @@ INSERT INTO students (student_id, user_id, roll_number, first_name, last_name, e
  (3, 6, '202612B01', 'Ada', 'Lovelace', 'ada.l@student.edu', '2009-12-10', 2),
  (4, 7, '202612B02', 'Grace', 'Hopper', 'grace.h@student.edu', '2009-12-09', 2),
  (5, 8, '202612B03', 'Katherine', 'Johnson', 'katherine.j@student.edu', '2009-08-26', 2),
+<<<<<<< HEAD
  (6, 9, '202612A03', 'Dorothy', 'Vaughan', 'dorothy.v@student.edu', '2009-09-20', 1);
+=======
+ (6, 9, '202612B04', 'Dorothy', 'Vaughan', 'dorothy.v@student.edu', '2009-09-20', 1);
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 -- ============================================================================
 -- 5. POPULATE SUBJECTS
@@ -79,6 +83,10 @@ INSERT INTO teacher_subjects (teacher_id, class_id, subject_id) VALUES
  (3, 1, 4), -- Newton teaches Computer Science to 12-A
  (3, 2, 3), -- Newton teaches Mathematics to 12-B
  (3, 2, 4); -- Newton teaches Computer Science to 12-B
+<<<<<<< HEAD
+=======
+(3, 1, 4); -- Newton teaches Computer Science to 12-A
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 -- ============================================================================
 -- 7. POPULATE EXAMS
@@ -91,6 +99,7 @@ INSERT INTO exams (exam_id, exam_name, term, academic_year) VALUES
 -- 8. POPULATE EXAM_SUBJECTS
 -- ============================================================================
 INSERT INTO exam_subjects (exam_subject_id, exam_id, subject_id, class_id, exam_date, max_marks, passing_marks) VALUES
+<<<<<<< HEAD
 (1, 1, 1, 1, '2026-10-10', 100.00, 33.00), -- 12-A Physics Mid-Term
 (2, 1, 3, 1, '2026-10-12', 100.00, 33.00), -- 12-A Math Mid-Term
  (3, 1, 4, 1, '2026-10-14', 50.00, 17.00), -- 12-A CS Mid-Term
@@ -98,6 +107,15 @@ INSERT INTO exam_subjects (exam_subject_id, exam_id, subject_id, class_id, exam_
  (5, 1, 2, 2, '2026-10-13', 100.00, 33.00), -- 12-B Chemistry Mid-Term
  (6, 1, 3, 2, '2026-10-15', 100.00, 33.00), -- 12-B Math Mid-Term
  (7, 1, 4, 2, '2026-10-16', 50.00, 17.00);  -- 12-B CS Mid-Term
+=======
+(1, 1, 1, 1, '2026-10-15', 100.00, 33.00), -- 12-A Physics Mid-Term
+(2, 1, 3, 1, '2026-10-17', 100.00, 33.00), -- 12-A Math Mid-Term
+ (3, 1, 4, 1, '2026-10-19', 50.00, 17.00), -- 12-A CS Mid-Term
+ (4, 1, 1, 2, '2026-10-16', 100.00, 33.00), -- 12-B Physics Mid-Term
+ (5, 1, 2, 2, '2026-10-18', 100.00, 33.00), -- 12-B Chemistry Mid-Term
+ (6, 1, 3, 2, '2026-10-20', 100.00, 33.00), -- 12-B Math Mid-Term
+ (7, 1, 4, 2, '2026-10-22', 50.00, 17.00);  -- 12-B CS Mid-Term
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 -- ============================================================================
 -- 9-11. RESULTS, ATTENDANCE, AND ASSIGNMENTS (all remaining tables non-empty)

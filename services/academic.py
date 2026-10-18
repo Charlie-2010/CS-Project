@@ -337,8 +337,11 @@ def teacher_delete_impact(session: Session, teacher_id: int) -> ServiceResult:
 def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
+<<<<<<< HEAD
         if session.teacher_id == teacher_id:
             return ServiceResult(False, error="You cannot delete the account you are currently signed in with.")
+=======
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
         impact = {
             "classes": fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))[0],
             "allocations": fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))[0],

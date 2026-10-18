@@ -290,12 +290,17 @@ class ScholarSync:
         header.pack(fill="x")
         make_label(header, f"ScholarSync  /  {session.username}", size=14, bold=True,
                    color=self.dark_blue).pack(side="left")
+<<<<<<< HEAD
         make_button(header, "Sign out", self.sign_out, primary=False).pack(side="right")
+=======
+        make_button(header, "Sign out", self.home_page, primary=False).pack(side="right")
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
         self.content = tk.Frame(self.root, bg=self.bg, padx=24, pady=18)
         self.content.pack(fill="both", expand=True)
         self.session = session
         self.navigate("dashboard")
 
+<<<<<<< HEAD
     def sign_out(self):
         self.session = None
         self.home_page()
@@ -318,6 +323,23 @@ class ScholarSync:
             view = subject_screen.build_page(self.content, session, lambda: self.navigate("dashboard"))
         else:
             view = build_teacher_dashboard(self.content, session, self.navigate)
+=======
+    def navigate(self, page):
+        for widget in self.content.winfo_children():
+            widget.destroy()
+        if self.session.role == "student":
+            view = build_student_dashboard(self.content, self.session)
+        elif page == "students":
+            view = student_screen.build_page(self.content, self.session, lambda: self.navigate("dashboard"))
+        elif page == "classes":
+            view = class_screen.build_page(self.content, self.session, lambda: self.navigate("dashboard"))
+        elif page == "teachers":
+            view = teacher_screen.build_page(self.content, self.session, lambda: self.navigate("dashboard"))
+        elif page == "subjects":
+            view = subject_screen.build_page(self.content, self.session, lambda: self.navigate("dashboard"))
+        else:
+            view = build_teacher_dashboard(self.content, self.session, self.navigate)
+>>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
         view.pack(fill="both", expand=True)
 
 

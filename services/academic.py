@@ -420,7 +420,6 @@ def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
         
     return _run(operation)
 
-
 def create_class(session: Session, data: dict[str, Any]) -> ServiceResult:
     def operation():
         _teacher(session)

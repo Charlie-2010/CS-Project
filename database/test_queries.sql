@@ -1,4 +1,4 @@
-USE student_performance_system;
+USE scholarsync_db;
 
 -- Every table should have seed rows.
 SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users
@@ -37,15 +37,8 @@ FROM exam_results er
 JOIN exam_subjects es ON es.exam_subject_id = er.exam_subject_id
 WHERE er.marks_obtained > es.max_marks;
 
-<<<<<<< HEAD
 -- Verify global roll-number uniqueness.
 SELECT roll_number, COUNT(*) AS duplicate_count
 FROM students
 GROUP BY roll_number
-=======
--- Verify the adopted per-class roll-number policy.
-SELECT class_id, roll_number, COUNT(*) AS duplicate_count
-FROM students
-GROUP BY class_id, roll_number
->>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 HAVING COUNT(*) > 1;

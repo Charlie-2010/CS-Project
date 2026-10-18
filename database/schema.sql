@@ -2,8 +2,8 @@
 -- ============================================================================
 -- DATABASE INITIALIZATION
 -- ============================================================================
-CREATE DATABASE IF NOT EXISTS student_performance_system;
-USE student_performance_system;
+CREATE DATABASE IF NOT EXISTS scholarsync_db;
+USE scholarsync_db;
 
 -- ============================================================================
 -- 1. USERS TABLE (Unified authentication for both Teacher & Student personas)

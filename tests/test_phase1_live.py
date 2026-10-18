@@ -5,7 +5,13 @@ import os
 import unittest
 
 from auth.hash_utils import verify_password
-from database.connection import ConstraintViolationError, execute_dml, fetch_all_records, get_connection
+from database.connection import (
+    ConstraintViolationError,
+    execute_dml,
+    fetch_all_records,
+    fetch_single_record,
+    get_connection,
+)
 from utils.helpers import insert_record
 from utils.validators import ValidationError
 

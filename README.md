@@ -50,23 +50,35 @@ MySQL checks. Live checks skip when MySQL cannot be reached. Run
 	class deletions show related-row impact before confirmation.
 - Teachers can manage students, teachers, classes, subjects, and teacher-subject
 	allocations. Referenced teacher deletions are rejected with a clear message.
-<<<<<<< HEAD
 - Both dashboards load from services and include a reserved Matplotlib chart
 	area. The student dashboard shows report-card and attendance summaries; the
 	teacher dashboard shows student/class counts and upcoming assignments.
-=======
-- Both dashboards load from services and include report-card/attendance views,
-	assignments, and a reserved Matplotlib chart area.
->>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
 
 ## Run
 
 1. Install dependencies with `py -m pip install -r requirements.txt`.
-2. Set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` for MySQL.
-3. Apply `database/schema.sql`, then `database/seed.sql`.
-4. Start the app with `py app.py`.
-<<<<<<< HEAD
-5. Run checks with `py -m unittest discover -s tests -v`.
+2. Copy `.env.example` to `.env`, then set the MySQL values from your Workbench
+	connection. Workbench's saved connection name is not the schema name; set
+	`DB_NAME` to the actual schema shown under Workbench's SCHEMAS panel.
+
+	```powershell
+	Copy-Item .env.example .env
+	notepad .env
+	```
+
+3. The sample `.env.example` targets `127.0.0.1:3306`, user `root`, and the
+	`scholarsync_db` schema created by `database/schema.sql`.
+4. Test the connection without printing the password:
+
+	```powershell
+	& ".venv\Scripts\python.exe" -c "from database.connection import get_connection; c = get_connection(); print('Connected to ' + c.database) if c else print('Connection failed; check .env host, port, user, password, and schema'); c and c.close()"
+	```
+
+5. Start the app from the same VS Code terminal with `py app.py`.
+6. To initialize a new database, apply `database/schema.sql`, then
+	`database/seed.sql`. **The seed script truncates existing app tables**; do
+	not run it against data you need to keep.
+7. Run checks with `py -m unittest discover -s tests -v`.
 
 ## Create a Submission Zip
 
@@ -80,6 +92,3 @@ $files = Get-ChildItem -Force -Recurse -File | Where-Object {
 }
 Compress-Archive -Path $files.FullName -DestinationPath .\Build.zip -Force
 ```
-=======
-5. Run checks with `py -m unittest discover -s tests -v`.
->>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f

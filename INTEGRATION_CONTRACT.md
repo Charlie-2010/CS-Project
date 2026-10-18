@@ -2,7 +2,7 @@
 
 ## Database
 
-- Database name: `student_performance_system`.
+- Database name: `scholarsync_db`.
 - Apply `database/schema.sql`, then `database/seed.sql`.
 - Connection configuration comes only from `DB_HOST`, `DB_PORT`, `DB_USER`,
   `DB_PASSWORD`, and `DB_NAME` environment variables.

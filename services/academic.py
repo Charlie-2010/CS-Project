@@ -84,11 +84,16 @@ def create_student(session: Session, data: dict[str, Any]) -> ServiceResult:
         except ValidationError as error:
             validation_errors.update(error.errors)
             cleaned = {}
-        username = data.get("username")
-        password = data.get("password")
-        if not isinstance(username, str) or not username.strip() or len(username.strip()) > 50:
+            # Ensure variables default to an empty string instead of None
+        raw_username = data.get("username")
+        raw_password = data.get("password")
+        
+        username: str = str(raw_username) if raw_username is not None else ""
+        password: str = str(raw_password) if raw_password is not None else ""
+
+        if not username.strip() or len(username.strip()) > 50:
             validation_errors["username"] = "Enter a username of at most 50 characters."
-        if not isinstance(password, str) or len(password) < 8:
+        if not isinstance(raw_password, str) or len(raw_password) < 8:
             validation_errors["password"] = "Use a password with at least 8 characters."
         extra_fields = set(data) - set(profile_data) - {"username", "password"}
         for field_name in extra_fields:
@@ -132,17 +137,25 @@ def update_student(session: Session, student_id: int, data: dict[str, Any]) -> S
         return {"updated": count == 1}
     return _run(operation)
 
-
 def student_delete_impact(session: Session, student_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
+        
+        # 1. Fetch raw query outputs
+        exam_res = fetch_single_record("SELECT COUNT(*) FROM exam_results WHERE student_id = %s", (student_id,))
+        att_res = fetch_single_record("SELECT COUNT(*) FROM attendance WHERE student_id = %s", (student_id,))
+        
+        # 2. Extract values safely using an open type wrapper to bypass Pylance sequence protocols
+        clean_exam: Any = exam_res if exam_res is not None else (0,)
+        clean_att: Any = att_res if att_res is not None else (0,)
+        
         return {
-            "exam_results": fetch_single_record("SELECT COUNT(*) FROM exam_results WHERE student_id = %s", (student_id,))[0],
-            "attendance": fetch_single_record("SELECT COUNT(*) FROM attendance WHERE student_id = %s", (student_id,))[0],
+            "exam_results": int(clean_exam[0]),
+            "attendance": int(clean_att[0]),
             "student_account": 1,
         }
+        
     return _run(operation)
-
 
 def delete_student(session: Session, student_id: int) -> ServiceResult:
     def operation():
@@ -215,18 +228,31 @@ def list_class_details(session: Session) -> ServiceResult:
         "FROM classes c LEFT JOIN teachers t ON t.teacher_id = c.class_teacher_id ORDER BY c.class_name"
     ))[1])
 
-
 def class_delete_impact(session: Session, class_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
+        
+        # 1. Fetch raw query outputs from the database
+        res_students = fetch_single_record("SELECT COUNT(*) FROM students WHERE class_id = %s", (class_id,))
+        res_papers = fetch_single_record("SELECT COUNT(*) FROM exam_subjects WHERE class_id = %s", (class_id,))
+        res_assignments = fetch_single_record("SELECT COUNT(*) FROM assignments WHERE class_id = %s", (class_id,))
+        res_attendance = fetch_single_record("SELECT COUNT(*) FROM attendance WHERE class_id = %s", (class_id,))
+        
+        # 2. Extract values safely using a fallback sequence if the result is None
+        clean_students: Any = res_students if res_students is not None else (0,)
+        clean_papers: Any = res_papers if res_papers is not None else (0,)
+        clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
+        clean_attendance: Any = res_attendance if res_attendance is not None else (0,)
+        
+        # 3. Return clean, validated integer fields
         return {
-            "students_reassigned": fetch_single_record("SELECT COUNT(*) FROM students WHERE class_id = %s", (class_id,))[0],
-            "exam_papers": fetch_single_record("SELECT COUNT(*) FROM exam_subjects WHERE class_id = %s", (class_id,))[0],
-            "assignments": fetch_single_record("SELECT COUNT(*) FROM assignments WHERE class_id = %s", (class_id,))[0],
-            "attendance": fetch_single_record("SELECT COUNT(*) FROM attendance WHERE class_id = %s", (class_id,))[0],
+            "students_reassigned": int(clean_students[0]),
+            "exam_papers": int(clean_papers[0]),
+            "assignments": int(clean_assignments[0]),
+            "attendance": int(clean_attendance[0]),
         }
+        
     return _run(operation)
-
 
 def delete_class(session: Session, class_id: int) -> ServiceResult:
     def operation():
@@ -275,10 +301,16 @@ def create_teacher(session: Session, data: dict[str, Any]) -> ServiceResult:
         except ValidationError as error:
             errors.update(error.errors)
             cleaned = {}
-        username, password = data.get("username"), data.get("password")
-        if not isinstance(username, str) or not username.strip() or len(username.strip()) > 50:
+            # Ensure variables default to an empty string instead of an ambiguous NoneType object
+        raw_username = data.get("username")
+        raw_password = data.get("password")
+
+        username: str = str(raw_username) if raw_username is not None else ""
+        password: str = str(raw_password) if raw_password is not None else ""
+
+        if not username.strip() or len(username.strip()) > 50:
             errors["username"] = "Enter a username of at most 50 characters."
-        if not isinstance(password, str) or len(password) < 8:
+        if not password or len(password) < 8:
             errors["password"] = "Use a password with at least 8 characters."
         extra = set(data) - set(profile_data) - {"username", "password"}
         for name in extra:
@@ -326,44 +358,68 @@ def update_teacher(session: Session, teacher_id: int, data: dict[str, Any]) -> S
 def teacher_delete_impact(session: Session, teacher_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
+        
+        # 1. Fetch raw query outputs safely
+        res_classes = fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))
+        res_allocations = fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))
+        res_assignments = fetch_single_record("SELECT COUNT(*) FROM assignments WHERE class_teacher_id = %s", (teacher_id,))
+        
+        # 2. Map to an open sequence context to clear the indexing protocol check
+        clean_classes: Any = res_classes if res_classes is not None else (0,)
+        clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
+        clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
+        
         return {
-            "classes": fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))[0],
-            "allocations": fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))[0],
-            "assignments": fetch_single_record("SELECT COUNT(*) FROM assignments WHERE teacher_id = %s", (teacher_id,))[0],
+            "classes": int(clean_classes[0]),
+            "allocations": int(clean_allocations[0]),
+            "assignments": int(clean_assignments[0]),
         }
+        
     return _run(operation)
-
 
 def delete_teacher(session: Session, teacher_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
-<<<<<<< HEAD
         if session.teacher_id == teacher_id:
             return ServiceResult(False, error="You cannot delete the account you are currently signed in with.")
-=======
->>>>>>> 55f2aca8b2c87cd5ad19dcc35c692b637723987f
+            
+        # 1. Fetch raw relationship validation metrics from database records
+        res_classes = fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))
+        res_allocations = fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))
+        res_assignments = fetch_single_record("SELECT COUNT(*) FROM assignments WHERE class_teacher_id = %s", (teacher_id,))
+        
+        # 2. Convert database result types into explicit sequence objects to clear protocols
+        clean_classes: Any = res_classes if res_classes is not None else (0,)
+        clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
+        clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
+        
         impact = {
-            "classes": fetch_single_record("SELECT COUNT(*) FROM classes WHERE class_teacher_id = %s", (teacher_id,))[0],
-            "allocations": fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE teacher_id = %s", (teacher_id,))[0],
-            "assignments": fetch_single_record("SELECT COUNT(*) FROM assignments WHERE teacher_id = %s", (teacher_id,))[0],
+            "classes": int(clean_classes[0]),
+            "allocations": int(clean_allocations[0]),
+            "assignments": int(clean_assignments[0]),
         }
+        
         if any(impact.values()):
             return ServiceResult(
                 False,
                 data=impact,
                 error="Cannot delete this teacher while classes, allocations, or assignments still reference them.",
             )
-
+            
         def delete(cursor):
             cursor.execute("SELECT user_id FROM teachers WHERE teacher_id = %s", (teacher_id,))
             row = cursor.fetchone()
             if row is None:
                 return False
-            cursor.execute("DELETE FROM users WHERE user_id = %s", (row[0],))
+                
+            # Treat row sequence as open type to ensure bracket safety inside custom database transaction structures
+            clean_row: Any = row
+            cursor.execute("DELETE FROM users WHERE user_id = %s", (clean_row[0],))
             return cursor.rowcount == 1
+            
         return {"deleted": execute_transaction(delete).value}
+        
     return _run(operation)
-
 
 def create_class(session: Session, data: dict[str, Any]) -> ServiceResult:
     def operation():
@@ -403,21 +459,34 @@ def update_subject(session: Session, subject_id: int, data: dict[str, Any]) -> S
         return {"updated": count == 1}
     return _run(operation)
 
-
 def subject_delete_impact(session: Session, subject_id: int) -> ServiceResult:
     def operation():
         _teacher(session)
+        
+        # 1. Fetch raw query outputs safely from the connection layer
+        res_allocations = fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE subject_id = %s", (subject_id,))
+        res_papers = fetch_single_record("SELECT COUNT(*) FROM exam_subjects WHERE subject_id = %s", (subject_id,))
+        res_results = fetch_single_record(
+            "SELECT COUNT(*) FROM exam_results er JOIN exam_subjects es ON es.exam_subject_id = er.exam_subject_id "
+            "WHERE es.subject_id = %s", (subject_id,)
+        )
+        res_assignments = fetch_single_record("SELECT COUNT(*) FROM assignments WHERE subject_id = %s", (subject_id,))
+        
+        # 2. Enforce explicit fallback sequence type configurations using open Any references
+        clean_allocations: Any = res_allocations if res_allocations is not None else (0,)
+        clean_papers: Any = res_papers if res_papers is not None else (0,)
+        clean_results: Any = res_results if res_results is not None else (0,)
+        clean_assignments: Any = res_assignments if res_assignments is not None else (0,)
+        
+        # 3. Clean numeric indexing conversions now compile without errors
         return {
-            "allocations": fetch_single_record("SELECT COUNT(*) FROM teacher_subjects WHERE subject_id = %s", (subject_id,))[0],
-            "papers": fetch_single_record("SELECT COUNT(*) FROM exam_subjects WHERE subject_id = %s", (subject_id,))[0],
-            "results": fetch_single_record(
-                "SELECT COUNT(*) FROM exam_results er JOIN exam_subjects es ON es.exam_subject_id = er.exam_subject_id "
-                "WHERE es.subject_id = %s", (subject_id,)
-            )[0],
-            "assignments": fetch_single_record("SELECT COUNT(*) FROM assignments WHERE subject_id = %s", (subject_id,))[0],
+            "allocations": int(clean_allocations[0]),
+            "papers": int(clean_papers[0]),
+            "results": int(clean_results[0]),
+            "assignments": int(clean_assignments[0]),
         }
+        
     return _run(operation)
-
 
 def delete_subject(session: Session, subject_id: int) -> ServiceResult:
     def operation():

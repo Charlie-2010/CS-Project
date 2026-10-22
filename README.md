@@ -38,7 +38,11 @@ reference that teacher.
 
 Run `py -m unittest discover -s tests -v` for offline checks and configured live
 MySQL checks. Live checks skip when MySQL cannot be reached. Run
-`database/test_queries.sql` after seeding to inspect table coverage and report cards.
+`database/test_queries.sql` after seeding to inspect table coverage and report cards,
+student percentages and grades, subject averages and mark ranges, and class-wise
+exam rank lists. The sample aggregation queries use a configurable-in-SQL grade
+scale (A >= 90%, B >= 80%, C >= 70%, D >= 60%, otherwise F); the rank query
+requires MySQL 8.0 or newer.
 
 ## Phase 2: Authentication & Core CRUD
 

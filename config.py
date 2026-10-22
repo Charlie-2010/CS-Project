@@ -16,7 +16,7 @@ class DatabaseConfig:
 	host: str = "localhost"
 	port: int = 3306
 	user: str = "root"
-	password: str = ""
+	password: str = "tommy@761349"
 	database: str = "scholarsync_db"
 
 	@classmethod
@@ -25,6 +25,6 @@ class DatabaseConfig:
 			host=os.getenv("DB_HOST", "localhost"),
 			port=int(os.getenv("DB_PORT", "3306")),
 			user=os.getenv("DB_USER", "root"),
-			password=os.getenv("DB_PASSWORD", ""),
+			password=os.getenv("DB_PASSWORD", "tommy@761349"),
 			database=os.getenv("DB_NAME", "scholarsync_db"),
 		)

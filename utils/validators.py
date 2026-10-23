@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
 import re
 from typing import Any, Callable
 
@@ -131,6 +132,63 @@ def validate_subject(data: dict[str, Any], *, partial: bool = False) -> dict[str
         return value
     return _validate(data, {"subject_name": lambda v: _required_string(v, "subject_name", 50),
                             "subject_code": code}, partial)
+
+
+def _mark_0_to_100(value: Any, field: str) -> Decimal:
+    if isinstance(value, bool):
+        raise ValidationError(f"{field} must be a number between 0 and 100.")
+    try:
+        parsed = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        raise ValidationError(f"{field} must be a number between 0 and 100.") from None
+    if not parsed.is_finite() or parsed < 0 or parsed > 100:
+        raise ValidationError(f"{field} must be between 0 and 100.")
+    return parsed
+
+
+def _attendance_status(value: Any) -> str:
+    statuses = {"Present", "Absent", "Late", "Excused"}
+    if not isinstance(value, str) or value not in statuses:
+        raise ValidationError("status must be Present, Absent, Late, or Excused.")
+    return value
+
+
+def _attendance_date(value: Any) -> date:
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValidationError("date must use YYYY-MM-DD.") from exc
+        if parsed.isoformat() != value:
+            raise ValidationError("date must use YYYY-MM-DD.")
+        return parsed
+    raise ValidationError("date must be a date or YYYY-MM-DD string.")
+
+
+def validate_attendance(data: dict[str, Any]) -> dict[str, Any]:
+    """Validate one attendance row before applying its per-student/day uniqueness rule."""
+    return _validate(data, {
+        "student_id": lambda value: _positive_int(value, "student_id"),
+        "class_id": lambda value: _positive_int(value, "class_id"),
+        "date": _attendance_date,
+        "status": _attendance_status,
+    }, partial=False)
+
+
+def validate_exam_result(data: dict[str, Any]) -> dict[str, Any]:
+    """Validate an exam mark as a finite number in the inclusive 0-100 range."""
+    if not isinstance(data, dict):
+        return _validate(data, {}, partial=False)
+    return _validate({**data, "remarks": data.get("remarks")}, {
+        "student_id": lambda value: _positive_int(value, "student_id"),
+        "exam_subject_id": lambda value: _positive_int(value, "exam_subject_id"),
+        "marks_obtained": lambda value: _mark_0_to_100(value, "marks_obtained"),
+        "remarks": lambda value: None if value is None or value == "" else _required_string(value, "remarks", 255),
+    }, partial=False)
 
 
 _ENTITY_VALIDATORS = {"students": validate_student, "teachers": validate_teacher,

@@ -1,6 +1,7 @@
 """Offline unit tests for credential security and schema-aware validation."""
 import unittest
 from datetime import date, timedelta
+from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
@@ -9,16 +10,33 @@ from auth.hash_utils import create_password_record, verify_password
 from auth.login import Session, WrongRoleError, authenticate_user
 from database.connection import (
     ConstraintViolationError,
+    DatabaseOperationError,
     DatabaseUnavailableError,
     execute_dml,
     execute_transaction,
     get_connection,
 )
 from mysql.connector import IntegrityError
-from services.academic import create_student, create_teacher, delete_teacher, list_students, update_class
+from services.academic import (
+    create_attendance,
+    create_exam_result,
+    create_student,
+    create_teacher,
+    delete_teacher,
+    list_students,
+    update_class,
+)
 from app import ScholarSync
 from utils.helpers import delete_record, get_records_by_filter, insert_record
-from utils.validators import ValidationError, validate_class, validate_student, validate_subject, validate_teacher
+from utils.validators import (
+    ValidationError,
+    validate_attendance,
+    validate_class,
+    validate_exam_result,
+    validate_student,
+    validate_subject,
+    validate_teacher,
+)
 
 
 class PasswordHashTests(unittest.TestCase):
@@ -111,11 +129,33 @@ class ValidationTests(unittest.TestCase):
             with self.subTest(date_of_birth=dob), self.assertRaises(ValidationError):
                 validate_student({**valid_student, "date_of_birth": dob})
 
+    def test_attendance_and_exam_result_validators_enforce_data_ranges(self):
+        attendance = validate_attendance({
+            "student_id": 1, "class_id": 2, "date": "2026-10-23", "status": "Present",
+        })
+        self.assertEqual(attendance["date"], date(2026, 10, 23))
+        for invalid_status in ("present", "Unknown", None):
+            with self.subTest(status=invalid_status), self.assertRaises(ValidationError):
+                validate_attendance({
+                    "student_id": 1, "class_id": 2, "date": "2026-10-23", "status": invalid_status,
+                })
+        for marks in (0, 100, "0.00", "100.00"):
+            with self.subTest(marks=marks):
+                self.assertGreaterEqual(validate_exam_result({
+                    "student_id": 1, "exam_subject_id": 3, "marks_obtained": marks,
+                })["marks_obtained"], 0)
+        for marks in (-0.01, 100.01, "NaN", "Infinity", True, "not-a-mark"):
+            with self.subTest(marks=marks), self.assertRaises(ValidationError):
+                validate_exam_result({
+                    "student_id": 1, "exam_subject_id": 3, "marks_obtained": marks,
+                })
+
     def test_schema_enforces_global_roll_number_uniqueness(self):
         schema_path = Path(__file__).parents[1] / "database" / "schema.sql"
         schema = schema_path.read_text(encoding="utf-8")
         self.assertIn("UNIQUE KEY unique_roll_number (roll_number)", schema)
         self.assertIn("DROP INDEX unique_roll_number_per_class", schema)
+        self.assertIn("UNIQUE KEY unique_daily_attendance (student_id, date)", schema)
 
 
 class ServiceBoundaryTests(unittest.TestCase):
@@ -126,6 +166,81 @@ class ServiceBoundaryTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertIn("access", result.error or "")
         fetch.assert_not_called()
+
+    def test_attendance_handler_rejects_duplicate_student_day(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        with patch("services.academic.fetch_single_record", return_value=(8,)) as fetch, \
+                patch("services.academic.execute_dml") as execute:
+            result = create_attendance(teacher, {
+                "student_id": 4, "class_id": 2, "date": "2026-10-23", "status": "Present",
+            })
+        self.assertFalse(result.ok)
+        self.assertIn("already been recorded", result.field_errors["date"])
+        fetch.assert_called_once_with(
+            "SELECT attendance_id FROM attendance WHERE student_id = %s AND date = %s",
+            (4, date(2026, 10, 23)),
+        )
+        execute.assert_not_called()
+
+    def test_attendance_handler_inserts_when_student_day_is_not_recorded(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        with patch("services.academic.fetch_single_record", return_value=None), \
+                patch("services.academic.execute_dml", return_value=1) as execute:
+            result = create_attendance(teacher, {
+                "student_id": 4, "class_id": 2, "date": "2026-10-23", "status": "Late",
+            })
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data, {"created": True})
+        self.assertEqual(execute.call_args.args[1], (4, 2, date(2026, 10, 23), "Late"))
+
+    def test_attendance_handler_reports_duplicate_insert_race(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        duplicate = DatabaseOperationError("duplicate", code=1062)
+        with patch("services.academic.fetch_single_record", return_value=None), \
+                patch("services.academic.execute_dml", side_effect=duplicate):
+            result = create_attendance(teacher, {
+                "student_id": 4, "class_id": 2, "date": "2026-10-23", "status": "Present",
+            })
+        self.assertFalse(result.ok)
+        self.assertIn("already been recorded", result.field_errors["date"])
+
+    def test_exam_result_handler_rejects_out_of_range_marks_before_database_access(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        with patch("services.academic.fetch_single_record") as fetch, \
+                patch("services.academic.execute_dml") as execute:
+            result = create_exam_result(teacher, {
+                "student_id": 4, "exam_subject_id": 3, "marks_obtained": 100.01,
+            })
+        self.assertFalse(result.ok)
+        self.assertIn("between 0 and 100", result.field_errors["marks_obtained"])
+        fetch.assert_not_called()
+        execute.assert_not_called()
+
+    def test_exam_result_handler_enforces_exam_paper_maximum(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        with patch("services.academic.fetch_single_record", return_value=(50,)), \
+                patch("services.academic.execute_dml", return_value=1) as execute:
+            result = create_exam_result(teacher, {
+                "student_id": 4, "exam_subject_id": 3, "marks_obtained": 50,
+            })
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data, {"created": True})
+        self.assertEqual(
+            execute.call_args.args,
+            (
+                "INSERT INTO exam_results (student_id, exam_subject_id, marks_obtained, remarks) "
+                "VALUES (%s, %s, %s, %s)",
+                (4, 3, Decimal("50"), None),
+            ),
+        )
+        with patch("services.academic.fetch_single_record", return_value=(50,)), \
+                patch("services.academic.execute_dml") as execute:
+            result = create_exam_result(teacher, {
+                "student_id": 4, "exam_subject_id": 3, "marks_obtained": 51,
+            })
+        self.assertFalse(result.ok)
+        self.assertIn("maximum", result.field_errors["marks_obtained"])
+        execute.assert_not_called()
 
     def test_duplicate_username_does_not_create_an_orphan_profile(self):
         class Cursor:

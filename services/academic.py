@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
+
+from typing import cast, Tuple, Any
 
 from auth.hash_utils import create_password_record
 from auth.login import Session
@@ -13,7 +16,15 @@ from database.connection import (
     fetch_all_records,
     fetch_single_record,
 )
-from utils.validators import ValidationError, validate_class, validate_student, validate_subject, validate_teacher
+from utils.validators import (
+    ValidationError,
+    validate_attendance,
+    validate_class,
+    validate_exam_result,
+    validate_student,
+    validate_subject,
+    validate_teacher,
+)
 
 
 @dataclass(frozen=True)
@@ -213,6 +224,62 @@ def student_dashboard_data(session: Session) -> ServiceResult:
             "WHERE s.student_id = %s AND a.due_date >= CURRENT_DATE ORDER BY a.due_date LIMIT 5", (student_id,)
         )
         return {"profile": profile, "report_card": report_card, "attendance": attendance, "assignments": assignments}
+    return _run(operation)
+
+
+def create_attendance(session: Session, data: dict[str, Any]) -> ServiceResult:
+    def operation():
+        _teacher(session)
+        cleaned = validate_attendance(data)
+        existing = fetch_single_record(
+            "SELECT attendance_id FROM attendance WHERE student_id = %s AND date = %s",
+            (cleaned["student_id"], cleaned["date"]),
+        )
+        if existing is not None:
+            raise ValidationError({"date": "Attendance has already been recorded for this student on this date."})
+        try:
+            inserted = execute_dml(
+                "INSERT INTO attendance (student_id, class_id, date, status) VALUES (%s, %s, %s, %s)",
+                (cleaned["student_id"], cleaned["class_id"], cleaned["date"], cleaned["status"]),
+            )
+        except DatabaseOperationError as error:
+            if error.code == 1062:
+                raise ValidationError(
+                    {"date": "Attendance has already been recorded for this student on this date."}
+                ) from error
+            raise
+        return {"created": inserted == 1}
+    return _run(operation)
+
+
+def create_exam_result(session: Session, data: dict[str, Any]) -> ServiceResult:
+    def operation():
+        _teacher(session)
+        cleaned = validate_exam_result(data)
+        paper = fetch_single_record(
+            "SELECT max_marks FROM exam_subjects WHERE exam_subject_id = %s",
+            (cleaned["exam_subject_id"],),
+        )
+        if paper is None:
+            raise ValidationError({"exam_subject_id": "Select a valid exam paper."})
+        try:
+            paper_row = cast(Tuple[Any, ...], paper)
+            maximum = Decimal(str(paper_row[0]))
+        except (InvalidOperation, ValueError):
+            raise ValidationError({"exam_subject_id": "The selected exam paper has an invalid maximum mark."}) from None
+        if not maximum.is_finite() or maximum < 0:
+            raise ValidationError({"exam_subject_id": "The selected exam paper has an invalid maximum mark."})
+        if cleaned["marks_obtained"] > maximum:
+            raise ValidationError(
+                {"marks_obtained": "Marks cannot exceed the maximum for this exam paper."}
+            )
+        inserted = execute_dml(
+            "INSERT INTO exam_results (student_id, exam_subject_id, marks_obtained, remarks) "
+            "VALUES (%s, %s, %s, %s)",
+            (cleaned["student_id"], cleaned["exam_subject_id"],
+             cleaned["marks_obtained"], cleaned["remarks"]),
+        )
+        return {"created": inserted == 1}
     return _run(operation)
 
 

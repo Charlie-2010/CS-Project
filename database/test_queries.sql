@@ -75,8 +75,8 @@ WITH student_exam_totals AS (
         SUM(es.max_marks) AS possible_marks
     FROM exam_results er
     JOIN students s ON s.student_id = er.student_id
-    JOIN classes c ON c.class_id = s.class_id
     JOIN exam_subjects es ON es.exam_subject_id = er.exam_subject_id
+    JOIN classes c ON c.class_id = es.class_id
     JOIN exams e ON e.exam_id = es.exam_id
     GROUP BY e.exam_id, e.exam_name, c.class_id, c.class_name, s.student_id, s.roll_number, s.first_name, s.last_name
 ),

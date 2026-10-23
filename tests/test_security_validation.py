@@ -19,7 +19,9 @@ from database.connection import (
 from mysql.connector import IntegrityError
 from services.academic import (
     create_attendance,
+    create_attendance_batch,
     create_exam_result,
+    create_exam_results_batch,
     create_student,
     create_teacher,
     delete_teacher,
@@ -37,6 +39,63 @@ from utils.validators import (
     validate_subject,
     validate_teacher,
 )
+
+
+class BatchTransactionConnection:
+    """Small transaction fake that exposes staged writes and commit/rollback."""
+
+    def __init__(self, *, fail_on_insert: int | None = None, paper_maxima=None):
+        self.fail_on_insert = fail_on_insert
+        self.paper_maxima = paper_maxima or {}
+        self.pending = []
+        self.saved = []
+        self.insert_count = 0
+        self.commits = 0
+        self.rollbacks = 0
+
+    def cursor(self):
+        return self.Cursor(self)
+
+    def commit(self):
+        self.saved.extend(self.pending)
+        self.pending.clear()
+        self.commits += 1
+
+    def rollback(self):
+        self.pending.clear()
+        self.rollbacks += 1
+
+    def close(self):
+        pass
+
+    class Cursor:
+        rowcount = 1
+        lastrowid = None
+
+        def __init__(self, connection):
+            self.connection = connection
+            self.result = None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params):
+            if query.startswith("SELECT max_marks"):
+                self.result = self.connection.paper_maxima.get(params[0])
+                return
+            if query.startswith("SELECT attendance_id"):
+                self.result = None
+                return
+            self.connection.insert_count += 1
+            if self.connection.insert_count == self.connection.fail_on_insert:
+                raise IntegrityError("duplicate row", errno=1062, sqlstate="23000")
+            self.connection.pending.append((query, params))
+
+        def fetchone(self):
+            return self.result
 
 
 class PasswordHashTests(unittest.TestCase):
@@ -203,6 +262,63 @@ class ServiceBoundaryTests(unittest.TestCase):
             })
         self.assertFalse(result.ok)
         self.assertIn("already been recorded", result.field_errors["date"])
+
+    def test_attendance_batch_commits_all_rows_once(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        connection = BatchTransactionConnection()
+        entries = [
+            {"student_id": 4, "class_id": 2, "date": "2026-10-23", "status": "Present"},
+            {"student_id": 5, "class_id": 2, "date": "2026-10-23", "status": "Late"},
+        ]
+        with patch("database.connection.get_connection", return_value=connection):
+            result = create_attendance_batch(teacher, entries)
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data, {"created": 2, "total": 2})
+        self.assertEqual(len(connection.saved), 2)
+        self.assertEqual((connection.commits, connection.rollbacks), (1, 0))
+
+    def test_attendance_batch_rolls_back_prior_rows_on_insert_failure(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        connection = BatchTransactionConnection(fail_on_insert=2)
+        entries = [
+            {"student_id": 4, "class_id": 2, "date": "2026-10-23", "status": "Present"},
+            {"student_id": 5, "class_id": 2, "date": "2026-10-23", "status": "Late"},
+        ]
+        with patch("database.connection.get_connection", return_value=connection):
+            result = create_attendance_batch(teacher, entries)
+        self.assertFalse(result.ok)
+        self.assertIn("no batch rows were saved", result.field_errors["_form"])
+        self.assertEqual(connection.saved, [])
+        self.assertEqual((connection.commits, connection.rollbacks), (0, 1))
+
+    def test_exam_result_batch_commits_multiple_marks_atomically(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        connection = BatchTransactionConnection(paper_maxima={3: (50,), 4: (100,)})
+        entries = [
+            {"student_id": 4, "exam_subject_id": 3, "marks_obtained": 48},
+            {"student_id": 5, "exam_subject_id": 4, "marks_obtained": 93},
+        ]
+        with patch("database.connection.get_connection", return_value=connection):
+            result = create_exam_results_batch(teacher, entries)
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data, {"created": 2, "total": 2})
+        self.assertEqual(len(connection.saved), 2)
+        self.assertEqual((connection.commits, connection.rollbacks), (1, 0))
+
+    def test_exam_result_batch_validation_failure_saves_no_rows(self):
+        teacher = Session(2, "teacher", "teacher", teacher_id=1)
+        connection = BatchTransactionConnection(paper_maxima={3: (50,)})
+        entries = [
+            {"student_id": 4, "exam_subject_id": 3, "marks_obtained": 49},
+            {"student_id": 5, "exam_subject_id": 3, "marks_obtained": 51},
+        ]
+        with patch("database.connection.get_connection", return_value=connection):
+            result = create_exam_results_batch(teacher, entries)
+        self.assertFalse(result.ok)
+        self.assertIn("maximum", result.field_errors["entries[1].marks_obtained"])
+        self.assertEqual(connection.saved, [])
+        self.assertEqual(connection.insert_count, 0)
+        self.assertEqual((connection.commits, connection.rollbacks), (0, 1))
 
     def test_exam_result_handler_rejects_out_of_range_marks_before_database_access(self):
         teacher = Session(2, "teacher", "teacher", teacher_id=1)

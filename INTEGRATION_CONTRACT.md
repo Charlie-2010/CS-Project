@@ -63,6 +63,13 @@ inserts. `services.academic.create_exam_result` is teacher-only and accepts
 finite marks from 0 through 100 inclusive; it also rejects marks above the
 selected paper's configured maximum.
 
+For batch entry, teacher-only `services.academic.create_attendance_batch` and
+`services.academic.create_exam_results_batch` accept a non-empty list of the
+same row dictionaries used by their single-entry counterparts. Each batch is
+validated before writes, then all rows are checked/inserted in one transaction
+and committed together. A validation or database error rolls back the entire
+batch; successful results report the created count and batch total.
+
 ## Policies
 
 - Roll numbers are unique across the student table, as enforced by the unique

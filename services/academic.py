@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from decimal import Decimal, InvalidOperation
+from typing import Any, Callable, Sequence, Tuple, cast
 
 from auth.hash_utils import create_password_record
 from auth.login import Session
@@ -13,7 +14,15 @@ from database.connection import (
     fetch_all_records,
     fetch_single_record,
 )
-from utils.validators import ValidationError, validate_class, validate_student, validate_subject, validate_teacher
+from utils.validators import (
+    ValidationError,
+    validate_attendance,
+    validate_class,
+    validate_exam_result,
+    validate_student,
+    validate_subject,
+    validate_teacher,
+)
 
 
 @dataclass(frozen=True)
@@ -213,6 +222,192 @@ def student_dashboard_data(session: Session) -> ServiceResult:
             "WHERE s.student_id = %s AND a.due_date >= CURRENT_DATE ORDER BY a.due_date LIMIT 5", (student_id,)
         )
         return {"profile": profile, "report_card": report_card, "attendance": attendance, "assignments": assignments}
+    return _run(operation)
+
+
+def create_attendance(session: Session, data: dict[str, Any]) -> ServiceResult:
+    def operation():
+        _teacher(session)
+        cleaned = validate_attendance(data)
+        existing = fetch_single_record(
+            "SELECT attendance_id FROM attendance WHERE student_id = %s AND date = %s",
+            (cleaned["student_id"], cleaned["date"]),
+        )
+        if existing is not None:
+            raise ValidationError({"date": "Attendance has already been recorded for this student on this date."})
+        try:
+            inserted = execute_dml(
+                "INSERT INTO attendance (student_id, class_id, date, status) VALUES (%s, %s, %s, %s)",
+                (cleaned["student_id"], cleaned["class_id"], cleaned["date"], cleaned["status"]),
+            )
+        except DatabaseOperationError as error:
+            if error.code == 1062:
+                raise ValidationError(
+                    {"date": "Attendance has already been recorded for this student on this date."}
+                ) from error
+            raise
+        return {"created": inserted == 1}
+    return _run(operation)
+
+
+def create_exam_result(session: Session, data: dict[str, Any]) -> ServiceResult:
+    def operation():
+        _teacher(session)
+        cleaned = validate_exam_result(data)
+        paper = fetch_single_record(
+            "SELECT max_marks FROM exam_subjects WHERE exam_subject_id = %s",
+            (cleaned["exam_subject_id"],),
+        )
+        if paper is None:
+            raise ValidationError({"exam_subject_id": "Select a valid exam paper."})
+        try:
+            paper_row = cast(Tuple[Any, ...], paper)
+            maximum = Decimal(str(paper_row[0]))
+        except (InvalidOperation, ValueError):
+            raise ValidationError({"exam_subject_id": "The selected exam paper has an invalid maximum mark."}) from None
+        if not maximum.is_finite() or maximum < 0:
+            raise ValidationError({"exam_subject_id": "The selected exam paper has an invalid maximum mark."})
+        if cleaned["marks_obtained"] > maximum:
+            raise ValidationError(
+                {"marks_obtained": "Marks cannot exceed the maximum for this exam paper."}
+            )
+        inserted = execute_dml(
+            "INSERT INTO exam_results (student_id, exam_subject_id, marks_obtained, remarks) "
+            "VALUES (%s, %s, %s, %s)",
+            (cleaned["student_id"], cleaned["exam_subject_id"],
+             cleaned["marks_obtained"], cleaned["remarks"]),
+        )
+        return {"created": inserted == 1}
+    return _run(operation)
+
+
+def _validate_batch(
+    entries: Sequence[dict[str, Any]],
+    validator: Callable[[dict[str, Any]], dict[str, Any]],
+    item_name: str,
+    unique_fields: tuple[str, ...],
+) -> list[dict[str, Any]]:
+    if not isinstance(entries, (list, tuple)) or not entries:
+        raise ValidationError({"_form": f"Provide at least one {item_name} entry."})
+
+    cleaned_entries = []
+    errors: dict[str, str] = {}
+    seen: set[tuple[Any, ...]] = set()
+    for index, entry in enumerate(entries):
+        try:
+            cleaned = validator(entry)
+        except ValidationError as error:
+            errors.update({f"entries[{index}].{field}": message for field, message in error.errors.items()})
+            continue
+        key = tuple(cleaned[field] for field in unique_fields)
+        if key in seen:
+            errors[f"entries[{index}]"] = f"This {item_name} is duplicated in the batch."
+        seen.add(key)
+        cleaned_entries.append(cleaned)
+    if errors:
+        raise ValidationError(errors)
+    return cleaned_entries
+
+
+def create_attendance_batch(session: Session, entries: Sequence[dict[str, Any]]) -> ServiceResult:
+    """Record a list of student attendance rows atomically."""
+    def operation():
+        _teacher(session)
+        cleaned_entries = _validate_batch(
+            entries, validate_attendance, "attendance", ("student_id", "date"),
+        )
+
+        def insert_batch(cursor):
+            for index, entry in enumerate(cleaned_entries):
+                cursor.execute(
+                    "SELECT attendance_id FROM attendance WHERE student_id = %s AND date = %s",
+                    (entry["student_id"], entry["date"]),
+                )
+                if cursor.fetchone() is not None:
+                    raise ValidationError({
+                        f"entries[{index}].date":
+                            "Attendance has already been recorded for this student on this date."
+                    })
+            for entry in cleaned_entries:
+                cursor.execute(
+                    "INSERT INTO attendance (student_id, class_id, date, status) "
+                    "VALUES (%s, %s, %s, %s)",
+                    (entry["student_id"], entry["class_id"], entry["date"], entry["status"]),
+                )
+            return len(cleaned_entries)
+
+        try:
+            inserted = execute_transaction(insert_batch).value
+        except DatabaseOperationError as error:
+            if error.code == 1062:
+                raise ValidationError({
+                    "_form": "An attendance entry for this student and date already exists; no batch rows were saved."
+                }) from error
+            raise
+        return {"created": inserted, "total": len(cleaned_entries)}
+    return _run(operation)
+
+
+def create_exam_results_batch(session: Session, entries: Sequence[dict[str, Any]]) -> ServiceResult:
+    """Save multiple student exam marks atomically after validating paper maxima."""
+    def operation():
+        _teacher(session)
+        cleaned_entries = _validate_batch(
+            entries, validate_exam_result, "exam result", ("student_id", "exam_subject_id"),
+        )
+
+        def insert_batch(cursor):
+            paper_maxima: dict[int, Decimal] = {}
+            for index, entry in enumerate(cleaned_entries):
+                paper_id = entry["exam_subject_id"]
+                if paper_id not in paper_maxima:
+                    cursor.execute(
+                        "SELECT max_marks FROM exam_subjects WHERE exam_subject_id = %s",
+                        (paper_id,),
+                    )
+                    paper = cursor.fetchone()
+                    if paper is None:
+                        raise ValidationError({
+                            f"entries[{index}].exam_subject_id": "Select a valid exam paper."
+                        })
+                    try:
+                        paper_row = cast(Tuple[Any, ...], paper)
+                        maximum = Decimal(str(paper_row[0]))
+                    except (InvalidOperation, ValueError):
+                        raise ValidationError({
+                            f"entries[{index}].exam_subject_id":
+                                "The selected exam paper has an invalid maximum mark."
+                        }) from None
+                    if not maximum.is_finite() or maximum < 0:
+                        raise ValidationError({
+                            f"entries[{index}].exam_subject_id":
+                                "The selected exam paper has an invalid maximum mark."
+                        })
+                    paper_maxima[paper_id] = maximum
+                if entry["marks_obtained"] > paper_maxima[paper_id]:
+                    raise ValidationError({
+                        f"entries[{index}].marks_obtained":
+                            "Marks cannot exceed the maximum for this exam paper."
+                    })
+
+            for entry in cleaned_entries:
+                cursor.execute(
+                    "INSERT INTO exam_results (student_id, exam_subject_id, marks_obtained, remarks) "
+                    "VALUES (%s, %s, %s, %s)",
+                    (entry["student_id"], entry["exam_subject_id"],
+                     entry["marks_obtained"], entry["remarks"]),
+                )
+            return len(cleaned_entries)
+
+        try:
+            inserted = execute_transaction(insert_batch).value
+        except DatabaseOperationError as error:
+            if error.code == 1062:
+                raise ValidationError({
+                    "_form": "A result for one of these students and exam papers already exists; no batch rows were saved."
+                }) from error
+            raise
+        return {"created": inserted, "total": len(cleaned_entries)}
     return _run(operation)
 
 

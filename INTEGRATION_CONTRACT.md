@@ -56,6 +56,20 @@ first, uses `lastrowid` for the student profile, and rolls back both records if
 either insert fails. `student_delete_impact` and `class_delete_impact` return
 related-row counts for confirmation dialogs.
 
+`services.academic.create_attendance` is teacher-only. It validates the
+attendance date and status, rejects an existing `(student_id, date)` entry with
+a date field error, and relies on the database unique key to guard concurrent
+inserts. `services.academic.create_exam_result` is teacher-only and accepts
+finite marks from 0 through 100 inclusive; it also rejects marks above the
+selected paper's configured maximum.
+
+For batch entry, teacher-only `services.academic.create_attendance_batch` and
+`services.academic.create_exam_results_batch` accept a non-empty list of the
+same row dictionaries used by their single-entry counterparts. Each batch is
+validated before writes, then all rows are checked/inserted in one transaction
+and committed together. A validation or database error rolls back the entire
+batch; successful results report the created count and batch total.
+
 ## Policies
 
 - Roll numbers are unique across the student table, as enforced by the unique

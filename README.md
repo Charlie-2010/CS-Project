@@ -78,7 +78,10 @@ requires MySQL 8.0 or newer.
 	& ".venv\Scripts\python.exe" -c "from database.connection import get_connection; c = get_connection(); print('Connected to ' + c.database) if c else print('Connection failed; check .env host, port, user, password, and schema'); c and c.close()"
 	```
 
-5. Start the app from the same VS Code terminal with `py app.py`.
+5. Start the web server from the same VS Code terminal with `py server.py`.
+   API endpoints use `http://127.0.0.1:5000/api/...`. Set `FLASK_SECRET_KEY`
+   to a long random value to keep login sessions valid across server restarts;
+   set `COOKIE_SECURE=true` when serving over HTTPS.
 6. To initialize a new database, apply `database/schema.sql`, then
 	`database/seed.sql`. **The seed script truncates existing app tables**; do
 	not run it against data you need to keep.

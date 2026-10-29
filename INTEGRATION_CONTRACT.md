@@ -29,16 +29,27 @@
   ```
 - Exactly one of `teacher_id` and `student_id` is populated for valid sessions.
 
-## UI Navigation
+## Web API
 
-- `ScholarSync.show_dashboard(session)` is the authenticated entry point.
-- `ScholarSync.navigate(page)` accepts `dashboard`, `students`, `teachers`,
-  `classes`, and `subjects`; management routes are available only to teacher
-  sessions.
-- The student portal opens its dashboard directly. The teacher dashboard
-  provides navigation to student, teacher, class, and subject/allocation
-  management.
-- Tkinter modules call `services.academic`; they do not execute SQL directly.
+- Start the Flask server with `py server.py`. Frontend templates are served from
+  `templates/`, and assets in `assets/` are available under `/assets/`.
+- `POST /api/auth/login` accepts `username`, `password`, and `role`
+  (`teacher` or `student`) as JSON and creates an HTTP-only session cookie.
+  `POST /api/auth/logout` clears the session and `GET /api/auth/me` returns the
+  signed-in user's public identity.
+- `GET /api/teacher/dashboard` and `GET /api/student/dashboard` return the
+  corresponding dashboard data for the matching authenticated role.
+- Teacher-only student management is available through
+  `GET`/`POST /api/students`, `GET /api/students/<student_id>`,
+  `PATCH`/`DELETE /api/students/<student_id>`, and
+  `GET /api/students/<student_id>/delete-impact`.
+- API successes return a JSON `data` value. Validation failures return HTTP 422
+  with `field_errors`; unauthenticated and unauthorized requests return HTTP
+  401 and 403; conflicting database constraints return HTTP 409, and database
+  availability or operation failures return HTTP 503.
+- Request handlers use `services.academic` for validated, role-aware workflows
+  and `database.connection` helpers for direct database reads. No API handler
+  updates desktop widgets.
 
 ## Service Results And Errors
 

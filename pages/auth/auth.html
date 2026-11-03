@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - CogniPlan</title>
+    <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Module 1: Sign In View Panel -->
+        <div class="glass-card auth-card" id="card-signin">
+            
+            <!-- High-Fidelity App Icon Asset Container -->
+            <div class="app-brand-icon-container">
+                <img src="../../assets/logo.jpg" alt="CogniPlan App Icon" class="app-brand-logo-img">
+            </div>
+
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to sync your gamified focus metrics</p>
+            
+            <form class="auth-form" onsubmit="executeSignIn(event)">
+                <div class="input-container">
+                    <label for="login-user">Username</label>
+                    <input type="text" id="login-user" required placeholder="Enter your username" autocomplete="off">
+                </div>
+                <div class="input-container">
+                    <label for="login-pass">Password</label>
+                    <input type="password" id="login-pass" required placeholder="Enter password text">
+                </div>
+                <button type="submit" class="btn-gradient">Sign In</button>
+            </form>
+
+            <div class="auth-links">
+                <p>New user? <span class="link-accent" onclick="toggleAuthView('card-signup')">Create Account</span></p>
+                <p><span class="link-muted" onclick="toggleAuthView('card-reset')">Forgot Password?</span></p>
+            </div>
+        </div>
+
+        <!-- Module 2: Create Account View Panel -->
+        <div class="glass-card auth-card hidden" id="card-signup">
+            
+            <div class="shield-badge-container">
+                <div class="badge-layout-engine">
+                    <div class="badge-wing wing-left">
+                        <span class="feather-leaf f1"></span>
+                        <span class="feather-leaf f2"></span>
+                        <span class="feather-leaf f3"></span>
+                    </div>
+                    <div class="shield-hex-glow-wrap">
+                        <div class="shield-hex-outer">
+                            <div class="shield-hex-inner">
+                                <div class="shield-hex-bevel">
+                                    <div class="shield-internal-crest">
+                                        <span class="badge-icon-graphics">✨</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="badge-wing wing-right">
+                        <span class="feather-leaf f1"></span>
+                        <span class="feather-leaf f2"></span>
+                        <span class="feather-leaf f3"></span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Initialize your workspace profile metrics</p>
+            
+            <form class="auth-form" onsubmit="executeSignUp(event)">
+                <div class="input-container">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Your full name">
+                </div>
+                <div class="input-container">
+                    <label for="reg-user">Username / Email</label>
+                    <input type="text" id="reg-user" required placeholder="Choose identifier account">
+                </div>
+                <div class="input-container">
+                    <label for="reg-pass">Password</label>
+                    <input type="password" id="reg-pass" required placeholder="Create secure password key">
+                </div>
+                <div class="input-container">
+                    <label for="reg-confirm">Confirm Password</label>
+                    <input type="password" id="reg-confirm" required placeholder="Repeat secure password key">
+                </div>
+                <button type="submit" class="btn-gradient">Sign Up</button>
+            </form>
+
+            <div class="auth-links">
+                <p>Already have an account? <span class="link-accent" onclick="toggleAuthView('card-signin')">Sign In</span></p>
+            </div>
+        </div>
+
+        <!-- Module 3: Reset Password View Panel -->
+        <div class="glass-card auth-card hidden" id="card-reset">
+            
+            <div class="shield-badge-container">
+                <div class="badge-layout-engine">
+                    <div class="badge-wing wing-left">
+                        <span class="feather-leaf f1"></span>
+                        <span class="feather-leaf f2"></span>
+                        <span class="feather-leaf f3"></span>
+                    </div>
+                    <div class="shield-hex-glow-wrap">
+                        <div class="shield-hex-outer">
+                            <div class="shield-hex-inner">
+                                <div class="shield-hex-bevel">
+                                    <div class="shield-internal-crest">
+                                        <span class="badge-icon-graphics">🔄</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="badge-wing wing-right">
+                        <span class="feather-leaf f1"></span>
+                        <span class="feather-leaf f2"></span>
+                        <span class="feather-leaf f3"></span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="auth-title">Reset Password</h2>
+            <p class="auth-subtitle">Verify address parameters to update your secure access vector</p>
+            
+            <form class="auth-form" onsubmit="executeReset(event)">
+                <div class="input-container">
+                    <label for="reset-mail">Email Address</label>
+                    <input type="email" id="reset-mail" required placeholder="account@example.com">
+                </div>
+                <button type="submit" class="btn-gradient">Send Recovery Code</button>
+            </form>
+
+            <div class="auth-links">
+                <p><span class="link-accent" onclick="toggleAuthView('card-signin')">Return to Sign In</span></p>
+            </div>
+        </div>
+    </div>
+    <script src="auth-script.js"></script>
+</body>
+</html>

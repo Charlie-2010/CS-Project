@@ -1,0 +1,235 @@
+:root {
+    --bg-dark-core: #050810;
+    --card-surface: rgba(17, 22, 34, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-muted: #64738c;
+    --neon-cyan: #aaffec;
+    --neon-blue: #6dd1f5;
+    --input-bg: rgba(9, 13, 21, 0.65);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark-core);
+    background-image: radial-gradient(circle at 50% 15%, #131d2f 0%, var(--bg-dark-core) 75%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Glassmorphism Panel Platform Core */
+.glass-card {
+    background: var(--card-surface);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.auth-card {
+    width: 100%;
+    padding: 2.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    animation: scaleFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* App Brand Icon Image Layout Profile */
+.app-brand-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.75rem;
+    position: relative;
+}
+
+.app-brand-logo-img {
+    width: 140px;
+    height: auto;
+    object-fit: contain;
+    /* Implements the high-intensity neon tech glow shell onto the raw alpha channels of the graphic transparent layer */
+    filter: drop-shadow(0 4px 16px rgba(0, 242, 254, 0.45));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Subtle hover interaction adding deep-focus responsiveness */
+.app-brand-logo-img:hover {
+    transform: scale(1.03);
+    filter: drop-shadow(0 6px 20px rgba(0, 242, 254, 0.6));
+}
+
+/* Typography Parameters */
+.auth-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 1.75rem;
+    line-height: 1.4;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.input-container label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-container input {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-container input:focus {
+    border-color: #6dd1f5;
+    box-shadow: 0 0 10px rgba(109, 209, 245, 0.2);
+}
+
+.input-container input::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+/* Fluid Call-To-Action Gradient Button Controls */
+.btn-gradient {
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    color: #050810;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.4rem;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
+}
+
+.auth-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.link-accent {
+    color: #6dd1f5;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.link-accent:hover {
+    text-decoration: underline;
+}
+
+.link-muted {
+    cursor: pointer;
+}
+
+.link-muted:hover {
+    color: var(--text-primary);
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes scaleFadeIn {
+    from { opacity: 0; transform: scale(0.97) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Center Branding Geometry Layout */
+.brand-crest-center-graphic {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.crest-mini-ring {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.crest-mini-ring::after {
+    content: '92%';
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #ffffff;
+    font-family: sans-serif;
+}
+
+.crest-pulse-line {
+    position: absolute;
+    width: 14px;
+    height: 10px;
+    border-bottom: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+    transform: rotate(-45deg) translate(2px, -2px);
+    opacity: 0.9;
+}

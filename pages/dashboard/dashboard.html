@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniPlan - Dashboard</title>
+    <link rel="stylesheet" href="dashboard-style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation Menu Left Sticky Anchor -->
+        <aside class="sidebar-nav">
+            <div class="sidebar-nav__toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <nav class="sidebar-nav__menu">
+                <div class="menu-cluster">
+                    <a href="#" class="menu-cluster__link active">⊞</a>
+                    <a href="#" class="menu-cluster__link">✉</a>
+                    <a href="#" class="menu-cluster__link">✓</a>
+                </div>
+                <div class="menu-cluster">
+                    <a href="#" class="menu-cluster__link">☷</a>
+                    <a href="#" class="menu-cluster__link">🌐</a>
+                    <a href="#" class="menu-cluster__link">📊</a>
+                </div>
+                <div class="menu-cluster menu-cluster--bottom">
+                    <a href="#" class="menu-cluster__link">⚙</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Body Content Workspace Component Wrapper -->
+        <div class="main-wrapper">
+            <!-- Split Track Content Panels Grid Subsystem -->
+            <div class="workspace-grid">
+                
+                <!-- Left Hand Container: Combines Top Bar and Primary Kanban Area -->
+                <div class="left-panel-track">
+                    <!-- Global Top Header Bar Component Layer -->
+                    <header class="workspace-header">
+                        <div class="search-bar">
+                            <span class="search-bar__icon">🔍</span>
+                            <input type="text" class="search-bar__input" placeholder="Search...">
+                        </div>
+                        <div class="workspace-header__actions">
+                            <button class="action-trigger action-trigger--bell">🔔<span class="badge-dot"></span></button>
+                            <div class="profile-pill">
+                                <span class="profile-pill__avatar">👤</span>
+                                <span class="profile-pill__name">User Profile</span>
+                            </div>
+                            <button class="action-trigger">↪</button>
+                        </div>
+                    </header>
+
+                    <!-- Left Hand Primary Workspaces Content Track Area -->
+                    <main class="primary-workspace">
+                        <h1 class="primary-workspace__title">My Task Dashboard</h1>
+                        
+                        <!-- Kanban Columns Interface System Grid Wrapper -->
+                        <div class="kanban-grid">
+                            <!-- State Section: Draft -->
+                            <div class="kanban-col" data-status="Draft">
+                                <div class="kanban-col__header">
+                                    <h2 class="kanban-col__title">DRAFT</h2>
+                                    <span class="kanban-col__options">•••</span>
+                                </div>
+                                <div class="kanban-col__cards">
+                                    <div class="task-card" draggable="true" data-id="1">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Main Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <div class="task-pill task-pill--blue">
+                                            <span class="task-pill__badge">A</span>
+                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                        </div>
+                                        <div class="task-pill task-pill--purple">
+                                            <span class="task-pill__badge">B</span>
+                                            <p class="task-pill__text">Magna aliqua enim</p>
+                                        </div>
+                                        <div class="task-card__footer">
+                                            <span class="stat-indicator">📋 2</span>
+                                            <span class="stat-indicator">📎 3</span>
+                                            <span class="star-toggle">☆</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-card" draggable="true" data-id="2">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Secondary Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <div class="task-pill task-pill--purple">
+                                            <span class="task-pill__badge">B</span>
+                                            <p class="task-pill__text">Ad minim veniam quis ex ea</p>
+                                        </div>
+                                        <div class="task-card__footer">
+                                            <span class="stat-indicator">📋 1</span>
+                                            <span class="stat-indicator">📎 4</span>
+                                            <span class="star-toggle star-toggle--active">★</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- State Section: In Progress -->
+                            <div class="kanban-col" data-status="In Progress">
+                                <div class="kanban-col__header">
+                                    <h2 class="kanban-col__title">IN PROGRESS</h2>
+                                    <span class="kanban-col__options">•••</span>
+                                </div>
+                                <div class="kanban-col__cards">
+                                    <div class="task-card" draggable="true" data-id="3">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Main Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <div class="task-pill task-pill--pink">
+                                            <span class="task-pill__badge">C</span>
+                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                        </div>
+                                        <div class="task-card__footer">
+                                            <span class="stat-indicator">📋 4</span>
+                                            <span class="stat-indicator">📎 6</span>
+                                            <span class="star-toggle star-toggle--active">★</span>
+                                        </div>
+                                        <div class="progress-block">
+                                            <div class="progress-block__label"><span>Progress</span><span>75%</span></div>
+                                            <div class="progress-block__track"><div class="progress-block__fill" style="width: 75%"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="task-card" draggable="true" data-id="4">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Secondary Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <div class="task-pill task-pill--blue">
+                                            <span class="task-pill__badge">A</span>
+                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                        </div>
+                                        <div class="task-pill task-pill--orange">
+                                            <span class="task-pill__badge">D</span>
+                                            <p class="task-pill__text">Magna aliqua enim</p>
+                                        </div>
+                                        <div class="task-card__footer">
+                                            <span class="stat-indicator">📋 2</span>
+                                            <span class="stat-indicator">📎 6</span>
+                                            <span class="star-toggle">☆</span>
+                                        </div>
+                                        <div class="progress-block">
+                                            <div class="progress-block__label"><span>Progress</span><span>50%</span></div>
+                                            <div class="progress-block__track"><div class="progress-block__fill" style="width: 50%"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- State Section: Editing -->
+                            <div class="kanban-col" data-status="Editing">
+                                <div class="kanban-col__header">
+                                    <h2 class="kanban-col__title">EDITING</h2>
+                                    <span class="kanban-col__options">•••</span>
+                                </div>
+                                <div class="kanban-col__cards">
+                                    <div class="task-card" draggable="true" data-id="5">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Main Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <ul class="task-bullet-list">
+                                            <li class="task-bullet-list__item task-bullet-list__item--blue">Adipiscing elit sed do</li>
+                                            <li class="task-bullet-list__item task-bullet-list__item--blue">Et dolore magna aliqua</li>
+                                            <li class="task-bullet-list__item task-bullet-list__item--purple">Excepteur sint occaecat</li>
+                                        </ul>
+                                        <div class="supervisor-row">
+                                            <span class="supervisor-row__label">Supervisor</span>
+                                            <div class="avatar-check-group">
+                                                <span class="avatar-check-group__dot active">✓</span>
+                                                <span class="avatar-check-group__dot active">✓</span>
+                                                <span class="avatar-check-group__dot">✓</span>
+                                            </div>
+                                            <span class="star-toggle star-toggle--active">★</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- State Section: Done -->
+                            <div class="kanban-col" data-status="Done">
+                                <div class="kanban-col__header">
+                                    <h2 class="kanban-col__title">DONE</h2>
+                                    <span class="kanban-col__options">•••</span>
+                                </div>
+                                <div class="kanban-col__cards">
+                                    <div class="task-card" draggable="true" data-id="6">
+                                        <div class="task-card__meta">
+                                            <h3 class="task-card__heading">Main Task</h3>
+                                            <span class="task-card__menu">⋮</span>
+                                        </div>
+                                        <div class="task-pill task-pill--checked">
+                                            <span class="task-pill__badge badge-blue">A</span>
+                                            <p class="task-pill__text line-through">Incididunt ut labore et...</p>
+                                            <span class="checked-mark">✓</span>
+                                        </div>
+                                        <div class="task-pill task-pill--checked">
+                                            <span class="task-pill__badge badge-purple">B</span>
+                                            <p class="task-pill__text line-through">Magna aliqua enim...</p>
+                                            <span class="checked-mark">✓</span>
+                                        </div>
+                                        <div class="task-pill task-pill--checked">
+                                            <span class="task-pill__badge badge-pink">C</span>
+                                            <p class="task-pill__text line-through">Incididunt ut labore...</p>
+                                            <span class="checked-mark">✓</span>
+                                        </div>
+                                        <div class="task-pill task-pill--checked">
+                                            <span class="task-pill__badge badge-orange">D</span>
+                                            <p class="task-pill__text line-through">Incididunt ut labore...</p>
+                                            <span class="checked-mark">✓</span>
+                                        </div>
+                                        <div class="task-card__footer">
+                                            <span class="stat-indicator">📋 1</span>
+                                            <span class="stat-indicator">📎 3</span>
+                                            <span class="star-toggle">☆</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="projects-section">
+                            <h2 class="projects-section__title">CURRENT PROJECTS</h2>
+                            <div class="projects-section__list">
+                                <div class="project-card-row">
+                                    <div class="project-card-row__meta">
+                                        <h4>Project Name</h4>
+                                        <p>Brief description dolor sit amet, consectetur adipiscing tasks</p>
+                                    </div>
+                                    <div class="project-card-row__controls">
+                                        <span class="date-badge">Due Date</span>
+                                        <div class="profile-stack">
+                                            <span class="profile-stack__member">👤</span>
+                                            <span class="profile-stack__member">👤</span>
+                                            <span class="profile-stack__member">👤</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+                <aside class="utility-side-rail">
+                    <div class="operator-widget">
+                        <div class="operator-widget__row">
+                            <p>Online consultation with operator</p>
+                            <button class="join-trigger">+ Join</button>
+                        </div>
+                        <div class="operator-profile-box">
+                            <div class="avatar-container">
+                                <span class="avatar-container__icon">👩‍💼</span>
+                                <span class="avatar-container__status-dot"></span>
+                            </div>
+                            <span class="operator-profile-box__title">Monika S</span>
+                            <button class="call-trigger">📞</button>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <h3 class="chart-panel__heading">PLANNER USAGE</h3>
+                        <div class="svg-container">
+                            <svg viewBox="0 0 100 45" class="svg-element">
+                                <path d="M5,35 Q20,12 38,24 T68,8 T90,32" fill="none" stroke="#8b5cf6" stroke-width="1.8"/>
+                                <circle cx="68" cy="8" r="1.5" fill="#ffffff" stroke="#8b5cf6" stroke-width="1"/>
+                            </svg>
+                            <div class="chart-panel__labels">
+                                <span>Jan</span><span>Feb</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Oct</span><span>Nov</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <h3 class="chart-panel__heading">COMPLETED TASKS BY WEEK</h3>
+                        <div class="svg-container">
+                            <svg viewBox="0 0 100 45" class="svg-element">
+                                <defs>
+                                    <linearGradient id="area-gradient-fill" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(139, 92, 246, 0.35)"/>
+                                        <stop offset="100%" stop-color="rgba(139, 92, 246, 0.0)"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M5,35 Q22,14 42,22 T74,10 T95,30 L95,42 L5,42 Z" fill="url(#area-gradient-fill)"/>
+                                <path d="M5,35 Q22,14 42,22 T74,10 T95,30" fill="none" stroke="#8b5cf6" stroke-width="1.8"/>
+                            </svg>
+                            <div class="chart-panel__labels">
+                                <span>1</span><span>11</span><span>11</span><span>90</span><span>10</span><span>21</span><span>33</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="efficiency-section">
+                        <h3 class="efficiency-section__heading">EFFICIENCY</h3>
+                        <div class="efficiency-grid">
+                            <div class="efficiency-node">
+                                <div class="efficiency-node__circle efficiency-node__circle--blue">75%</div>
+                                <span class="efficiency-node__label">Author A</span>
+                            </div>
+                            <div class="efficiency-node">
+                                <div class="efficiency-node__circle efficiency-node__circle--purple">44%</div>
+                                <span class="efficiency-node__label">Author B</span>
+                            </div>
+                            <div class="efficiency-node">
+                                <div class="efficiency-node__circle efficiency-node__circle--pink">68%</div>
+                                <span class="efficiency-node__label">Author C</span>
+                            </div>
+                            <div class="efficiency-node">
+                                <div class="efficiency-node__circle efficiency-node__circle--orange">55%</div>
+                                <span class="efficiency-node__label">Author D</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-panel">
+                        <h3 class="schedule-panel__heading">HOURLY CALENDAR SCHEDULE</h3>
+                        <div class="timeline-container">
+                            <div class="timeline-item timeline-item--blue">
+                                <span class="timeline-item__time">12:00 - 13:00</span>
+                                <div class="timeline-item__body">
+                                    <h5>UX DEPLOYMENT AND RESEARCH</h5>
+                                    <p>Building UX and structures</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item timeline-item--light">
+                                <span class="timeline-item__time">13:00 - 14:00</span>
+                                <div class="timeline-item__body">
+                                    <h5>DATABASE INTEGRATION LAYER</h5>
+                                    <p>Add database components</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item timeline-item--purple">
+                                <span class="timeline-item__time">14:00 - 15:00</span>
+                                <div class="timeline-item__body">
+                                    <h5>BACKEND SYSTEM DEBUGGING</h5>
+                                    <p>Debugging route handlers</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+    <script src="dashboard-script.js"></script>
+</body>
+</html>

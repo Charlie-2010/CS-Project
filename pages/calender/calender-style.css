@@ -1,0 +1,595 @@
+/* ==========================================================================
+   1. CORE VARIABLES & RESET
+   ========================================================================== */
+:root {
+    --bg-main: #060913;
+    --bg-card: #0b0f19;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --text-primary: #ffffff;
+    --text-muted: #4e5d78;
+
+    /* Event Accent Colors */
+    --accent-cyan: #00bcd4;
+    --accent-blue: #2196f3;
+    --accent-purple: #9c27b0;
+
+    /* Glow Anchors */
+    --glow-selected: 0 0 15px rgba(0, 188, 212, 0.35);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   2. Left Sticky Side Navigation Sidebar
+   ========================================================================== */
+.calendar-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* Sidebar Container Setup */
+.sidebar-nav {
+  width: 60px; /* Default collapsed width */
+  height: 100vh;
+  background-color: #18191a; /* Matches dark UI theme */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 1000; /* Overlaps mid content when expanded */
+  overflow-x: hidden;
+}
+
+/* Expanded State for Sidebar */
+.sidebar-nav.expanded {
+  width: 220px; /* Width when text labels are displayed */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Toggle Menu Bars Icon Styling */
+.sidebar-nav__toggle {
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: #ffffff;
+  transition: 0.3s;
+}
+
+/* Nav Menu Item Links Styling */
+.sidebar-nav__menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b0b3b8;
+  transition: background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-cluster__link:hover, 
+.menu-cluster__link.active {
+  background-color: #242526;
+  color: #ffffff;
+}
+
+/* Navigation Icons Alignment */
+.nav-icon {
+  font-size: 18px;
+  min-width: 25px;
+  text-align: center;
+}
+
+/* Navigation Text Labels Visibility Behavior */
+.nav-label {
+  margin-left: 15px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Make text labels visible only when sidebar expanded class is attached */
+.sidebar-nav.expanded .nav-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==========================================================================
+   3. MAIN WORKSPACE & HEADER
+   ========================================================================== */
+.main-wrapper {
+    flex: 1;
+    margin-left: 60px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+    height: 100vh;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.calendar-header__title {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.calendar-header__controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #12181d;
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid #1f2a35;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.filter-options {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.filter-label {
+    color: var(--text-muted);
+}
+
+.filter-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 400;
+    padding: 2px 4px;
+}
+
+.filter-btn.active {
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--accent-cyan);
+}
+
+/* ==========================================================================
+   4. CALENDAR WORKSPACE GRID SYSTEM
+   ========================================================================== */
+.workspace-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.month-view-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.month-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.month-view-header__title {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.month-view-header__nav {
+    display: flex;
+    gap: 6px;
+}
+
+.nav-arrow {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.weekday-label {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.calendar-grid-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    flex: 1;
+    border-top: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+    min-height: 0;
+}
+
+.grid-day {
+    padding: 6px;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.day-number {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.grid-day:not(.dynamic-muted-day) .day-number {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.dynamic-muted-day {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.active-selected-day {
+    background-color: rgba(0, 188, 212, 0.03);
+    box-shadow: inset 0 0 0 1px var(--accent-cyan), var(--glow-selected);
+    z-index: 2;
+}
+
+.active-selected-day .day-number {
+    color: var(--accent-cyan) !important;
+    font-weight: bold;
+}
+
+/* Event Tags Inside Grid Layout Cells */
+.event-tag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow-y: hidden;
+    flex: 1;
+}
+
+.event-tag {
+    font-size: 9px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+
+.tag-cyan {
+    background-color: rgba(0, 188, 212, 0.15);
+    color: #00e5ff;
+}
+
+.tag-blue {
+    background-color: rgba(33, 150, 243, 0.15);
+    color: #2196f3;
+}
+
+.tag-purple {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: #e040fb;
+}
+
+/* ==========================================================================
+   5. RIGHT SIDE PANEL TIMELINE VIEW
+   ========================================================================== */
+.day-timeline-panel {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.timeline-header__title {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.timeline-scroll-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 4px;
+}
+
+/* Custom Minimalist Scrollbars */
+.timeline-scroll-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.timeline-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.timeline-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.timeline-card {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.timeline-card.border-cyan {
+    border-left: 3px solid var(--accent-cyan);
+}
+
+.timeline-card.border-blue {
+    border-left: 3px solid var(--accent-blue);
+}
+
+.timeline-card.border-purple {
+    border-left: 3px solid var(--accent-purple);
+}
+
+.timeline-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time-range {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.card-options-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.timeline-card__title {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #ffffff;
+}
+
+.timeline-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.priority-badge {
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.status-high {
+    background-color: rgba(244, 67, 54, 0.12);
+    color: #ef5350;
+}
+
+.status-mid {
+    background-color: rgba(255, 152, 0, 0.12);
+    color: #ffa726;
+}
+
+.status-low {
+    background-color: rgba(76, 175, 80, 0.12);
+    color: #81c784;
+}
+
+.status-icon {
+    color: var(--accent-cyan);
+    font-size: 11px;
+}
+
+/* ==========================================================================
+   6. PORTAL MODAL INTERFACE COMPONENT
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 6, 12, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 420px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-group label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.form-group input,
+.form-group select {
+    background: #12181d;
+    border: 1px solid var(--border-color);
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.submit-btn {
+    background: var(--accent-cyan);
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 10px;
+    transition: background 0.2s ease;
+}
+
+.submit-btn:hover {
+    background: #00acc1;
+}
+
+@media (max-width: 1024px) {
+    .workspace-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .day-timeline-panel {
+        height: 350px;
+    }
+}

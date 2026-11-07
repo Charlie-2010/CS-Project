@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
+    <link rel="stylesheet" href="calender-style.css">
+</head>
+<body>
+    <div class="calendar-container">
+        <!-- Sidebar Navigation Menu Left Sticky Anchor -->
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-nav__toggle" id="sidebar-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="sidebar-nav__menu">
+                <div class="menu-cluster">
+                    <a href="../dashboard/dashboard.html" class="menu-cluster__link">
+                        <span class="nav-icon">⊞</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="../messages/messages.html" class="menu-cluster__link">
+                        <span class="nav-icon">✉</span>
+                        <span class="nav-label">Messages</span>
+                    </a>
+                    <a href="../tasks/tasks.html" class="menu-cluster__link">
+                        <span class="nav-icon">✓</span>
+                        <span class="nav-label">Tasks</span>
+                    </a>
+                    <a href="../calender/calender.html" class="menu-cluster__link active">
+                        <span class="nav-icon">📆</span>
+                        <span class="nav-label">Calendar</span>
+                    </a>
+                    <a href="../reports/reports.html" class="menu-cluster__link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
+                </div>
+
+                <div class="menu-cluster menu-cluster--bottom">
+                    <a href="../settings/settings.html" class="menu-cluster__link">
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Body Content Workspace Component Wrapper -->
+        <main class="main-wrapper">
+            <!-- Header Section -->
+            <header class="calendar-header">
+                <h1 class="calendar-header__title">Calendar</h1>
+                <div class="calendar-header__controls">
+                    <button class="profile-pill" id="profile-pill">
+                        <span class="nav-icon">👤</span>
+                        <span class="profile-pill__name">Profile</span>
+                    </button>
+                    <div class="filter-options">
+                        <span class="filter-label">Filter:</span>
+                        <button class="filter-btn active" data-filter="Weekly">Weekly</button>
+                        <span class="separator">/</span>
+                        <button class="filter-btn" data-filter="Monthly">Monthly</button>
+                        <span class="separator">/</span>
+                        <button class="filter-btn" data-filter="Overall">Overall</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Workspace Layout Content split into main view and panel view -->
+            <div class="workspace-layout">
+                <!-- Left Section: Month View Calendar Grid System -->
+                <section class="month-view-card">
+                    <div class="month-view-header">
+                        <h2 class="month-view-header__title" id="current-month-display">October 2024</h2>
+                        <div class="month-view-header__nav">
+                            <button class="nav-arrow" id="prev-month-btn">‹</button>
+                            <button class="nav-arrow" id="next-month-btn">›</button>
+                        </div>
+                    </div>
+
+                    <!-- Weekdays Row -->
+                    <div class="calendar-grid-header">
+                        <div class="weekday-label">Sun</div>
+                        <div class="weekday-label">Mon</div>
+                        <div class="weekday-label">Tue</div>
+                        <div class="weekday-label">Wed</div>
+                        <div class="weekday-label">Thu</div>
+                        <div class="weekday-label">Fri</div>
+                        <div class="weekday-label">Sat</div>
+                    </div>
+
+                    <!-- Days Grid Matrix (Populated dynamically via JavaScript) -->
+                    <div class="calendar-grid-body" id="calendar-grid-matrix"></div>
+                </section>
+
+                <!-- Right Side Panel Timeline View -->
+                <aside class="day-timeline-panel">
+                    <div class="timeline-header">
+                        <h2 class="timeline-header__title" id="timeline-date-title">Oct 24th</h2>
+                        <button class="options-btn" id="add-event-quick-trigger">➕</button>
+                    </div>
+
+                    <!-- Dynamic Timeline Container -->
+                    <div class="timeline-scroll-container" id="timeline-events-wrapper"></div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <!-- Inline Quick Task Creator Modal Portal Component -->
+    <div class="modal-overlay" id="event-modal">
+        <div class="modal-card">
+            <div class="modal-card__header">
+                <h3>Create New Entry</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <form class="modal-form" id="event-creation-form">
+                <div class="form-group">
+                    <label for="event-title">Task Title</label>
+                    <input type="text" id="event-title" required placeholder="e.g., SQL Schema Migration Script">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-start">Start Time</label>
+                        <input type="time" id="event-start" required value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="event-end">End Time</label>
+                        <input type="time" id="event-end" required value="10:30">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-priority">Priority</label>
+                        <select id="event-priority">
+                            <option value="high">High</option>
+                            <option value="mid" selected>Mid</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-theme">Color Theme</label>
+                        <select id="event-theme">
+                            <option value="cyan">Cyan</option>
+                            <option value="blue">Blue</option>
+                            <option value="purple">Purple</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Save Event Anchor</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="calender-script.js"></script>
+</body>
+</html>

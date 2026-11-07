@@ -1,0 +1,532 @@
+/* Base Reset & Application Layout System */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #0b0f12;
+  color: #ffffff;
+}
+
+.message-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar Container Setup */
+.sidebar-nav {
+  width: 60px; /* Default collapsed width */
+  height: 100vh;
+  background-color: #18191a; /* Matches dark UI theme */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 1000; /* Overlaps mid content when expanded */
+  overflow-x: hidden;
+}
+
+/* Expanded State for Sidebar */
+.sidebar-nav.expanded {
+  width: 220px; /* Width when text labels are displayed */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Toggle Menu Bars Icon Styling */
+.sidebar-nav__toggle {
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: #ffffff;
+  transition: 0.3s;
+}
+
+/* Nav Menu Item Links Styling */
+.sidebar-nav__menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b0b3b8;
+  transition: background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-cluster__link:hover, 
+.menu-cluster__link.active {
+  background-color: #242526;
+  color: #ffffff;
+}
+
+/* Navigation Icons Alignment */
+.nav-icon {
+  font-size: 18px;
+  min-width: 25px;
+  text-align: center;
+}
+
+/* Navigation Text Labels Visibility Behavior */
+.nav-label {
+  margin-left: 15px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Make text labels visible only when sidebar expanded class is attached */
+.sidebar-nav.expanded .nav-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Right Content Core Stacking Layout Wrapper System */
+.main-wrapper {
+  margin-left: 60px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+}
+
+/* Global Top Header Bar Component Layer */
+.workspace-header {
+  height: 60px;
+  background-color: #0b0f12;
+  border-bottom: 1px solid #1f2a35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 20px;
+  padding: 6px 14px;
+  width: 260px;
+}
+
+.search-bar__input {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+.workspace-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.action-trigger {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #12181d;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #1f2a35;
+}
+
+/* Side-by-Side Flexbox Column Component Dock Layout */
+.workspace-body {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  height: calc(100vh - 60px); 
+  overflow: hidden;
+}
+
+/* Contact List Block Panel */
+.contact-list {
+  width: 320px;
+  background-color: #0b0f12;
+  border-right: 1px solid #1f2a35;
+  height: 100%;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.brand {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.new-chat-btn {
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.plus-icon {
+  background-color: #00b4d8;
+  color: #0b0f12;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.contacts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.contact-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* Update Left Contact List Profile Pictures */
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #1f2a35 0%, #2d3748 100%);
+  border: 1px solid #2d3748;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.contact-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contact-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.contact-time {
+  font-size: 11px;
+  color: #718096;
+}
+
+.contact-preview {
+  font-size: 12px;
+  color: #718096;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-item.active {
+  background: linear-gradient(135deg, #093339 0%, #062429 100%);
+  border-left: 3px solid #00b4d8;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #00b4d8;
+  border: 2px solid #062429;
+  border-radius: 50%;
+}
+
+.contact-time-active {
+  font-size: 11px;
+  color: #00b4d8;
+  font-weight: 500;
+}
+
+.contact-preview-active {
+  font-size: 12px;
+  color: #a0aec0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Add an icon or placeholder style inside empty avatars */
+.avatar::before, .chat-header-avatar::before, .message-avatar::before {
+  content: "👤";
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   RIGHT SIDE CHAT VIEWPORT FEED INTERFACE STYLES 
+   ========================================================================== */
+.chat-conversation-viewport {
+  flex-grow: 1;
+  background-color: #080b0d;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
+/* Chat Header Bar Top Block */
+.chat-header-bar {
+  height: 70px;
+  border-bottom: 1px solid #1f2a35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.chat-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Update Chat Header Avatar at Top Right Panel */
+.chat-header-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #093339 0%, #00b4d8 100%);
+  border: 1px solid #1f2a35;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-header-status {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.chat-header-badge {
+  font-size: 11px;
+  color: #00b4d8;
+  background-color: rgba(0, 180, 216, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: max-content;
+  margin-top: 4px;
+}
+
+.chat-header-action-pill {
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #a0aec0;
+}
+
+/* Active Message List Viewport */
+.chat-messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.message-bubble {
+  display: flex;
+  gap: 12px;
+  max-width: 70%;
+}
+
+.message-bubble--received {
+  align-self: flex-start;
+}
+
+.message-bubble--sent {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* Update Chat Bubble Message Timeline Avatars */
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #12181d 0%, #1f2a35 100%);
+  border: 1px solid #2d3748;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-text {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message-bubble--received .message-text {
+  background-color: #12181d;
+  color: #e2e8f0;
+  border-top-left-radius: 0;
+}
+
+.message-bubble--sent .message-text {
+  background-color: #00b4d8;
+  color: #0b0f12;
+  border-top-right-radius: 0;
+  font-weight: 500;
+}
+
+.message-timestamp {
+  font-size: 10px;
+  color: #718096;
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* Attachment Layout Components */
+.message-asset-preview {
+  background-color: #1a232a;
+  border: 1px solid #1f2a35;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #00b4d8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.message-progress-ring {
+  background-color: #1a232a;
+  border: 1px solid #1f2a35;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #a0aec0;
+  width: max-content;
+}
+
+/* Chat Message Input Footer */
+.chat-input-bar {
+  padding: 20px 24px;
+  border-top: 1px solid #1f2a35;
+  background-color: #080b0d;
+  flex-shrink: 0;
+}
+
+.chat-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 24px;
+  padding: 8px 16px;
+  gap: 12px;
+}
+
+.chat-input-field {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: #ffffff;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.chat-action-btn {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.chat-action-btn:hover {
+  color: #00b4d8;
+}

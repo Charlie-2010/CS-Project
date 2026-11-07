@@ -4,30 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CogniPlan - Dashboard</title>
+    <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="dashboard-style.css">
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Sidebar Navigation Menu Left Sticky Anchor -->
-        <aside class="sidebar-nav">
-            <div class="sidebar-nav__toggle">
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-nav__toggle" id="sidebar-toggle">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
             </div>
+
             <nav class="sidebar-nav__menu">
                 <div class="menu-cluster">
-                    <a href="#" class="menu-cluster__link active">⊞</a>
-                    <a href="#" class="menu-cluster__link">✉</a>
-                    <a href="#" class="menu-cluster__link">✓</a>
+                    <a href="dashboard.html" class="menu-cluster__link active">
+                        <span class="nav-icon">⊞</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="../messages/messages.html" class="menu-cluster__link">
+                        <span class="nav-icon">✉</span>
+                        <span class="nav-label">Messages</span>
+                    </a>
+                    <a href="../tasks/tasks.html" class="menu-cluster__link">
+                        <span class="nav-icon">✓</span>
+                        <span class="nav-label">Tasks</span>
+                    </a>
+                    <a href="../calender/calender.html" class="menu-cluster__link">
+                        <span class="nav-icon">📆</span>
+                        <span class="nav-label">Calendar</span>
+                    </a>
+                    <a href="../reports/reports.html" class="menu-cluster__link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
                 </div>
-                <div class="menu-cluster">
-                    <a href="#" class="menu-cluster__link">☷</a>
-                    <a href="#" class="menu-cluster__link">🌐</a>
-                    <a href="#" class="menu-cluster__link">📊</a>
-                </div>
+
                 <div class="menu-cluster menu-cluster--bottom">
-                    <a href="#" class="menu-cluster__link">⚙</a>
+                    <a href="../settings/settings.html" class="menu-cluster__link">
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
                 </div>
             </nav>
         </aside>
@@ -47,11 +65,10 @@
                         </div>
                         <div class="workspace-header__actions">
                             <button class="action-trigger action-trigger--bell">🔔<span class="badge-dot"></span></button>
-                            <div class="profile-pill">
+                            <button class="action-trigger" id="profile-pill">
                                 <span class="profile-pill__avatar">👤</span>
                                 <span class="profile-pill__name">User Profile</span>
-                            </div>
-                            <button class="action-trigger">↪</button>
+                            </button>
                         </div>
                     </header>
 
@@ -75,11 +92,11 @@
                                         </div>
                                         <div class="task-pill task-pill--blue">
                                             <span class="task-pill__badge">A</span>
-                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                            <p class="task-pill__text">With hard work and pain</p>
                                         </div>
                                         <div class="task-pill task-pill--purple">
                                             <span class="task-pill__badge">B</span>
-                                            <p class="task-pill__text">Magna aliqua enim</p>
+                                            <p class="task-pill__text">For some great things</p>
                                         </div>
                                         <div class="task-card__footer">
                                             <span class="stat-indicator">📋 2</span>
@@ -94,7 +111,7 @@
                                         </div>
                                         <div class="task-pill task-pill--purple">
                                             <span class="task-pill__badge">B</span>
-                                            <p class="task-pill__text">Ad minim veniam quis ex ea</p>
+                                            <p class="task-pill__text">To the least detail, who from it</p>
                                         </div>
                                         <div class="task-card__footer">
                                             <span class="stat-indicator">📋 1</span>
@@ -119,7 +136,7 @@
                                         </div>
                                         <div class="task-pill task-pill--pink">
                                             <span class="task-pill__badge">C</span>
-                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                            <p class="task-pill__text">With hard work and pain</p>
                                         </div>
                                         <div class="task-card__footer">
                                             <span class="stat-indicator">📋 4</span>
@@ -138,11 +155,11 @@
                                         </div>
                                         <div class="task-pill task-pill--blue">
                                             <span class="task-pill__badge">A</span>
-                                            <p class="task-pill__text">Incididunt ut labore et dolore</p>
+                                            <p class="task-pill__text">With hard work and pain</p>
                                         </div>
                                         <div class="task-pill task-pill--orange">
                                             <span class="task-pill__badge">D</span>
-                                            <p class="task-pill__text">Magna aliqua enim</p>
+                                            <p class="task-pill__text">To the least detail, who from it</p>
                                         </div>
                                         <div class="task-card__footer">
                                             <span class="stat-indicator">📋 2</span>
@@ -170,9 +187,9 @@
                                             <span class="task-card__menu">⋮</span>
                                         </div>
                                         <ul class="task-bullet-list">
-                                            <li class="task-bullet-list__item task-bullet-list__item--blue">Adipiscing elit sed do</li>
-                                            <li class="task-bullet-list__item task-bullet-list__item--blue">Et dolore magna aliqua</li>
-                                            <li class="task-bullet-list__item task-bullet-list__item--purple">Excepteur sint occaecat</li>
+                                            <li class="task-bullet-list__item task-bullet-list__item--blue">it is pursuing, but also</li>
+                                            <li class="task-bullet-list__item task-bullet-list__item--blue">And great pain</li>
+                                            <li class="task-bullet-list__item task-bullet-list__item--purple">Except they are blind</li>
                                         </ul>
                                         <div class="supervisor-row">
                                             <span class="supervisor-row__label">Supervisor</span>
@@ -201,22 +218,22 @@
                                         </div>
                                         <div class="task-pill task-pill--checked">
                                             <span class="task-pill__badge badge-blue">A</span>
-                                            <p class="task-pill__text line-through">Incididunt ut labore et...</p>
+                                            <p class="task-pill__text line-through">With hard work and pain...</p>
                                             <span class="checked-mark">✓</span>
                                         </div>
                                         <div class="task-pill task-pill--checked">
                                             <span class="task-pill__badge badge-purple">B</span>
-                                            <p class="task-pill__text line-through">Magna aliqua enim...</p>
+                                            <p class="task-pill__text line-through">With hard work and pain...</p>
                                             <span class="checked-mark">✓</span>
                                         </div>
                                         <div class="task-pill task-pill--checked">
                                             <span class="task-pill__badge badge-pink">C</span>
-                                            <p class="task-pill__text line-through">Incididunt ut labore...</p>
+                                            <p class="task-pill__text line-through">it is pursuing, but also...</p>
                                             <span class="checked-mark">✓</span>
                                         </div>
                                         <div class="task-pill task-pill--checked">
                                             <span class="task-pill__badge badge-orange">D</span>
-                                            <p class="task-pill__text line-through">Incididunt ut labore...</p>
+                                            <p class="task-pill__text line-through">And great pain...</p>
                                             <span class="checked-mark">✓</span>
                                         </div>
                                         <div class="task-card__footer">
@@ -266,7 +283,7 @@
                             <button class="call-trigger">📞</button>
                         </div>
                     </div>
-
+                    
                     <div class="chart-panel">
                         <h3 class="chart-panel__heading">PLANNER USAGE</h3>
                         <div class="svg-container">

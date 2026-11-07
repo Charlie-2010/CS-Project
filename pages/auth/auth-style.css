@@ -62,22 +62,21 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin-bottom: 1.75rem;
+    margin-bottom: 0.5rem;
     position: relative;
 }
 
 .app-brand-logo-img {
     width: 140px;
     height: auto;
-    object-fit: contain;
-    /* Implements the high-intensity neon tech glow shell onto the raw alpha channels of the graphic transparent layer */
+    object-fit: contain;    /* Implements the high-intensity neon tech glow shell onto the raw alpha channels of the graphic transparent layer */
     filter: drop-shadow(0 4px 16px rgba(0, 242, 254, 0.45));
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Subtle hover interaction adding deep-focus responsiveness */
 .app-brand-logo-img:hover {
-    transform: scale(1.03);
+    transform: scale(1.10);
     filter: drop-shadow(0 6px 20px rgba(0, 242, 254, 0.6));
 }
 

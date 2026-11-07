@@ -1,0 +1,502 @@
+/* ==========================================================================
+   1. Base Reset & Cyber Dark Palette Setup
+   ========================================================================== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0f12;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+.dashboard-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ==========================================================================
+   2. Left Sticky Side Navigation Panel
+   ========================================================================== */
+.sidebar-nav {
+  width: 70px;
+  height: 100vh;
+  background-color: #12181d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  border-right: 1px solid #1f2a35;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-nav__toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  margin-bottom: 32px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: #a0aec0;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav__menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.menu-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.menu-cluster__link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  color: #718096;
+  text-decoration: none;
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+.menu-cluster__link:hover,
+.menu-cluster__link.active {
+  color: #00b4d8;
+  background-color: rgba(0, 180, 216, 0.1);
+}
+
+.nav-label {
+  display: none; /* Icon-only compact format configuration */
+}
+
+/* ==========================================================================
+   3. Main Workspace Content Frame Layout
+   ========================================================================== */
+.main-wrapper {
+  flex-grow: 1;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Profile Title & Interactive Filter Header Strip */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.filter-controls {
+  font-size: 14px;
+  color: #718096;
+}
+
+.filter-label {
+  margin-right: 4px;
+}
+
+.filter-opt {
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.filter-opt:hover {
+  color: #ffffff;
+}
+
+.filter-opt.active {
+  color: #ffffff;
+  background-color: #1c2630;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Layout Columns View Grid Setup */
+.profile-workspace-grid {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+/* Translucent Glassmorphic Content Card Blocks */
+.profile-card {
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 14px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.profile-card--left {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.profile-forms-column {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+}
+
+/* ==========================================================================
+   4. Left Column: HUD Avatar Graphics Elements
+   ========================================================================== */
+.developer-node-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Futuristic HUD Circular Dial Layout Ring System */
+.hud-outer-ring {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: 2px dashed rgba(0, 180, 216, 0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(0, 180, 216, 0.05);
+}
+
+.hud-inner-ring {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  border: 4px double #00b4d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0, 180, 216, 0.15), inset 0 0 20px rgba(0, 180, 216, 0.15);
+  background-color: rgba(11, 15, 18, 0.6);
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   FIXED: Force Image Structural Container Framing Constraints
+   ========================================================================== */
+.avatar-image-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden; /* Truncates long alt strings hidden outside the circle bounds */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #1a232a; /* Provides an immediate slate dark backplate block */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  font-size: 0; /* Hides raw alt layout text rendering strings inside empty img elements */
+}
+
+/* Fallback Icon inside circle container if portrait fails to fetch */
+.avatar-image-frame::before {
+  content: "👤";
+  font-size: 48px;
+  position: absolute;
+  opacity: 0.25;
+  z-index: 1;
+}
+
+.avatar-img {
+  position: relative;
+  z-index: 2; /* Sits layered cleanly on top of the generic placeholder */
+}
+
+
+/* Metadata Text List Rows Description */
+.metadata-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meta-line {
+  margin: 0;
+  font-size: 13px;
+  color: #718096;
+}
+
+.meta-val {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   5. Right Column: Form Fields & Interactive Inputs
+   ========================================================================== */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #a0aec0;
+  text-transform: capitalize;
+}
+
+.form-input {
+  background-color: #0b0f12;
+  border: 1px solid #1f2a35;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: #00b4d8;
+  box-shadow: 0 0 8px rgba(0, 180, 216, 0.2);
+}
+
+/* Stylized Select Menu Option Controls */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  font-size: 10px;
+  color: #718096;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.form-select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 32px;
+}
+
+/* ==========================================================================
+   6. Academic Metrics Panel layout
+   ========================================================================== */
+.metrics-row-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.metric-progress-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metric-meta-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.metric-name {
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+.metric-percentage {
+  color: #00b4d8;
+  font-weight: 600;
+}
+
+.progress-track-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #0b0f12;
+  border: 1px solid #1f2a35;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill-cyan {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #0077b6, #00b4d8);
+  box-shadow: 0 0 10px rgba(0, 180, 216, 0.4);
+  transition: width 0.6s ease;
+}
+
+/* Semester Average Value Box Component */
+.semester-avg-box {
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.avg-display-pill {
+  background-color: #0b0f12;
+  border: 1px solid #1f2a35;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   7. Ecosystem Code Console Logs Block
+   ========================================================================== */
+.ecosystem-textarea {
+  background-color: #0b0f12;
+  border: 1px solid #1f2a35;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #a0aec0;
+  resize: none;
+  width: 100%;
+  height: 90px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* Lower Align Action Form Buttons Layout Row */
+.form-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.btn-update-profile {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid #1f2a35;
+  color: #e2e8f0;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-update-profile:hover {
+  background-color: #1c2630;
+  border-color: #00b4d8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 180, 216, 0.2);
+}
+
+/* ==========================================================================
+   8. Responsive Media Breakpoints Layout Query Configurations
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .profile-workspace-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .profile-card--left {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .metrics-row-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .semester-avg-box {
+    width: 100%;
+  }
+  
+  .main-wrapper {
+    padding: 20px;
+  }
+}

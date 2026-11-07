@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
+    <link rel="stylesheet" href="profile-style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation Menu Left Sticky Anchor -->
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-nav__toggle" id="sidebar-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="sidebar-nav__menu">
+                <div class="menu-cluster">
+                    <a href="../dashboard/dashboard.html" class="menu-cluster__link">
+                        <span class="nav-icon">⊞</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="../messages/messages.html" class="menu-cluster__link">
+                        <span class="nav-icon">✉</span>
+                        <span class="nav-label">Messages</span>
+                    </a>
+                    <a href="tasks.html" class="menu-cluster__link">
+                        <span class="nav-icon">✓</span>
+                        <span class="nav-label">Tasks</span>
+                    </a>
+                    <a href="analytics.html" class="menu-cluster__link">
+                        <span class="nav-icon">🌐</span>
+                        <span class="nav-label">Analytics</span>
+                    </a>
+                    <a href="../reports/reports.html" class="menu-cluster__link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
+                </div>
+
+                <div class="menu-cluster menu-cluster--bottom">
+                    <a href="../settings/settings.html" class="menu-cluster__link">
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Body Content Workspace Component Wrapper -->
+        <div class="main-wrapper">
+            <!-- Global Top Header Section -->
+            <header class="profile-header">
+                <h1 class="profile-title">Profile Settings</h1>
+                <div class="filter-controls">
+                    <span class="filter-label">Filter:</span>
+                    <span class="filter-opt active" data-filter="weekly">Weekly</span> /
+                    <span class="filter-opt" data-filter="monthly">Monthly</span> /
+                    <span class="filter-opt" data-filter="overall">Overall</span>
+                </div>
+            </header>
+
+            <!-- Two-Column Workspace Layout Section -->
+            <div class="profile-workspace-grid">
+                
+                <!-- Left Column Panel Card: Developer Node / Avatar Display -->
+                <div class="profile-card profile-card--left">
+                    <div class="developer-node-container">
+                        <!-- Futuristic HUD Layout Graphic Ring System -->
+                        <div class="hud-outer-ring">
+                            <div class="hud-inner-ring">
+                                <div class="avatar-image-frame">
+                                    <!-- Embedded high-resolution portrait sample component -->
+                                    <img src="https://unsplash.com" alt="Monika S Profile Avatar" class="avatar-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Text List Block Group -->
+                    <div class="metadata-block">
+                        <p class="meta-line">High-level data: <span class="meta-val">Crektod</span></p>
+                        <p class="meta-line">High-level-data: <span class="meta-val">Wiella Jins 11</span></p>
+                        <p class="meta-line">Low level matna: <span class="meta-val">About, Go0%</span></p>
+                    </div>
+                </div>
+
+                <!-- Right Column Panel Layout: Form Parameters + Performance Parameters -->
+                <div class="profile-forms-column">
+                    
+                    <!-- Section Card 1: Account Parameters Grid Input Controls -->
+                    <div class="profile-card">
+                        <h2 class="section-title">Account Parameters</h2>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label class="form-label" for="username-field">Username</label>
+                                <input type="text" id="username-field" class="form-input" value="monikaS" placeholder="Enter username">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label" for="email-field">Email</label>
+                                <input type="email" id="email-field" class="form-input" value="email@ggmail.com" placeholder="Enter email address">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label class="form-label" for="timezone-select">Preferred Time Zone</label>
+                                <div class="select-wrapper">
+                                    <select id="timezone-select" class="form-input form-select">
+                                        <option value="default" selected>Prefered Time Zone</option>
+                                        <option value="utc">UTC (Coordinated Universal Time)</option>
+                                        <option value="est">EST (Eastern Standard Time)</option>
+                                        <option value="ist">IST (Indian Standard Time)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Card 2: Performance Progression Metric Tracking Blocks -->
+                    <div class="profile-card">
+                        <h2 class="section-title">Academic Metrics</h2>
+                        <div class="metrics-row-layout">
+                            <div class="metric-progress-wrapper">
+                                <div class="metric-meta-labels">
+                                    <span class="metric-name">Project Milestones</span>
+                                    <span class="metric-percentage" id="milestones-pct">72%</span>
+                                </div>
+                                <div class="progress-track-bar">
+                                    <div class="progress-fill-cyan" id="milestones-bar" style="width: 72%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="semester-avg-box">
+                                <label class="form-label">Semester Avg</label>
+                                <div class="avg-display-pill" id="semester-avg-val">88%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Card 3: Ecosystem Code System Configurations Log -->
+                    <div class="profile-card">
+                        <h2 class="section-title">Full-stack Configuration Ecosystem</h2>
+                        <div class="form-group">
+                            <textarea class="ecosystem-textarea" readonly spellcheck="false">OS: Windows 11 | Backend: Node.js, Express.js, MySQL | Frontend: React.js | Services: Auth, Real-time Updates, Reporting | DB Schema: User, Tasks, Logs</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Lower Align Control Submission Block -->
+                    <div class="form-actions-row">
+                        <button type="button" class="btn-update-profile" id="btn-save-profile">Update Profile</button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="profile-script.js"></script>
+</body>
+</html>

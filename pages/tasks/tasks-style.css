@@ -1,0 +1,557 @@
+/* ==========================================================================
+   1. Core Layout Reset & Cyber Base Theme
+   ========================================================================== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0f12;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.tasks-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   2. Left Sticky Side Navigation Sidebar
+   ========================================================================== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #0b0f12;
+  color: #ffffff;
+}
+
+.message-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar Container Setup */
+.sidebar-nav {
+  width: 60px; /* Default collapsed width */
+  height: 100vh;
+  background-color: #18191a; /* Matches dark UI theme */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 1000; /* Overlaps mid content when expanded */
+  overflow-x: hidden;
+}
+
+/* Expanded State for Sidebar */
+.sidebar-nav.expanded {
+  width: 220px; /* Width when text labels are displayed */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Toggle Menu Bars Icon Styling */
+.sidebar-nav__toggle {
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: #ffffff;
+  transition: 0.3s;
+}
+
+/* Nav Menu Item Links Styling */
+.sidebar-nav__menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b0b3b8;
+  transition: background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-cluster__link:hover, 
+.menu-cluster__link.active {
+  background-color: #242526;
+  color: #ffffff;
+}
+
+/* Navigation Icons Alignment */
+.nav-icon {
+  font-size: 18px;
+  min-width: 25px;
+  text-align: center;
+}
+
+/* Navigation Text Labels Visibility Behavior */
+.nav-label {
+  margin-left: 15px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Make text labels visible only when sidebar expanded class is attached */
+.sidebar-nav.expanded .nav-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==========================================================================
+   3. Main Kanban Board Frame Area Workspace
+   ========================================================================== */
+.tasks-workspace {
+  margin-left: 60px;
+  flex-grow: 1;
+  padding: 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100vh;
+  min-width: 0;
+  overflow: hidden;
+  background-color: #0b0f12;
+}
+
+/* Top Progress Header Component Layer */
+.tasks-progress-header {
+  background: rgba(18, 24, 29, 0.4);
+  border: 1px solid rgba(31, 42, 53, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Managed via margins explicitly */
+  flex-shrink: 0;
+}
+
+.progress-track-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.progress-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.progress-header-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: #00b4d8;
+  text-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
+}
+
+.progress-header-track {
+  width: 100%;
+  height: 8px;
+  background-color: #0b0f12;
+  border: 1px solid #1f2a35;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-header-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #0077b6, #00b4d8);
+  box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+  transition: width 0.5s ease;
+}
+
+/* Horizontal Columns Alignment Hook Grid */
+.kanban-board-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex-grow: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 12px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+/* Custom Scrollbar for the Kanban Flow */
+.kanban-board-grid::-webkit-scrollbar {
+  height: 8px;
+}
+.kanban-board-grid::-webkit-scrollbar-track {
+  background: #0b0f12;
+}
+.kanban-board-grid::-webkit-scrollbar-thumb {
+  background: #1f2a35;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   4. Kanban Columns Container Panels
+   ========================================================================== */
+.kanban-column {
+  width: 320px;
+  max-height: 100%;
+  background: rgba(18, 24, 29, 0.25);
+  border: 1px solid rgba(31, 42, 53, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.column-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.column-options {
+  color: #718096;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+.cards-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 4px;
+}
+
+.cards-list-container::-webkit-scrollbar {
+  width: 4px;
+}
+.cards-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   5. Translucent Glassmorphism Cards System
+   ========================================================================== */
+.kanban-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 180, 216, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.card-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-category {
+  font-size: 11px;
+  color: #718096;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-dots {
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.card-heading {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.card-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Color Coding Tag Pills */
+.tag-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.tag-pill--cyan {
+  background-color: rgba(0, 180, 216, 0.1);
+  color: #00b4d8;
+  border: 1px solid rgba(0, 180, 216, 0.2);
+}
+
+.tag-pill--orange {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.tag-pill--blue {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.tag-pill--purple {
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+/* ==========================================================================
+   6. Neon Color Indicators & Footer Hooks
+   ========================================================================== */
+.card-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.priority-indicator {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: lowercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* High Neon Priority Glow */
+.priority-indicator--high {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.05);
+}
+
+/* Mid Neon Priority Glow */
+.priority-indicator--mid {
+  color: #eab308;
+  background-color: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  text-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.05);
+}
+
+.verify-check-icon {
+  color: #00b4d8;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: rgba(0, 180, 216, 0.1);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(0, 180, 216, 0.3);
+}
+
+/* ==========================================================================
+   7. Done Highlight & Vector Curves Container
+   ========================================================================== */
+.kanban-card--done-highlight {
+  border: 1px solid rgba(0, 180, 216, 0.5);
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.05) 0%, rgba(18, 24, 29, 0.4) 100%);
+  box-shadow: 0 0 15px rgba(0, 180, 216, 0.1);
+}
+
+.chart-metrics-payload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.metric-stat-line {
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.stat-highlight {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.card-chart-vector {
+  width: 100%;
+  margin-top: 8px;
+  background-color: rgba(11, 15, 18, 0.4);
+  border-radius: 6px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.mini-chart-svg {
+  display: block;
+  overflow: visible;
+}
+
+/* ==========================================================================
+   Action Controller Button: Add Card Template Styles
+   ========================================================================== */
+.btn-add-task {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #718096;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  flex-shrink: 0;
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-add-task:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #00b4d8;
+}
+
+.add-btn-icon {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Interactive Task Card Edit Options Menu
+   ========================================================================== */
+.card-top-meta {
+  position: relative; /* Anchor the absolute dropdown context menu */
+}
+
+.card-dots {
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.card-dots:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #00b4d8;
+}
+
+.card-edit-dropdown {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  width: 160px;
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+  z-index: 100;
+}
+
+.dropdown-item {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  padding: 8px 12px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.dropdown-item--delete {
+  color: #ef4444;
+}
+
+.dropdown-item--delete:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}

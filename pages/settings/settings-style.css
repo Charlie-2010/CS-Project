@@ -1,0 +1,629 @@
+/* ==========================================================================
+   1. CORE VARIABLES & RESET
+   ========================================================================== */
+:root {
+  --bg-main: #060913;
+  --bg-card: #0a0f1d;
+  --border-color: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-muted: #64748b;
+  --accent-cyan: #00e5ff;
+  --glow-selected: 0 0 15px rgba(0, 229, 255, 0.25);
+  --card-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   2. Left Sticky Side Navigation Sidebar
+   ========================================================================== */
+.settings-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* Sidebar Container Setup */
+.sidebar-nav {
+  width: 60px;
+  /* Default collapsed width */
+  height: 100vh;
+  background-color: #18191a;
+  /* Matches dark UI theme */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  /* Overlaps mid content when expanded */
+  overflow-x: hidden;
+}
+
+/* Expanded State for Sidebar */
+.sidebar-nav.expanded {
+  width: 220px;
+  /* Width when text labels are displayed */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Toggle Menu Bars Icon Styling */
+.sidebar-nav__toggle {
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: #ffffff;
+  transition: 0.3s;
+}
+
+/* Nav Menu Item Links Styling */
+.sidebar-nav__menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b0b3b8;
+  transition: background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-cluster__link:hover,
+.menu-cluster__link.active {
+  background-color: #242526;
+  color: #ffffff;
+}
+
+/* Navigation Icons Alignment */
+.nav-icon {
+  font-size: 18px;
+  min-width: 25px;
+  text-align: center;
+}
+
+/* Navigation Text Labels Visibility Behavior */
+.nav-label {
+  margin-left: 15px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Make text labels visible only when sidebar expanded class is attached */
+.sidebar-nav.expanded .nav-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==========================================================================
+   3. MAIN WORKSPACE & HEADER
+   ========================================================================== */
+.main-wrapper {
+  flex: 1;
+  margin-left: 60px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-title-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-box {
+  width: 42px;
+  height: 42px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+}
+
+.header-text h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin-bottom: 2px;
+}
+
+.header-text p {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+  padding: 4px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  background-color: #ff4a5a;
+  border-radius: 50%;
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. SETTINGS GRID AND CARDS LAYOUT
+   ========================================================================== */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.settings-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--card-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.card-icon {
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+
+.card-title-block h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-title-block p {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* PROFILE SECTION SPECIFICS */
+.profile-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.avatar-container {
+  position: relative;
+  width: 84px;
+  height: 84px;
+}
+
+.avatar-glow-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #6200ea;
+  border-bottom-color: #00e5ff;
+  background-image: linear-gradient(var(--bg-card), var(--bg-card)), linear-gradient(135deg, #7928ca, #00dfd8);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-initials {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-email {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: -8px;
+}
+
+.change-photo-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  transition: background 0.2s;
+}
+
+.change-photo-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* SETTINGS ROWS & ROW CONTROLS */
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.row-info h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.row-info p {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Form Inputs & Option Toggles Layout */
+.segmented-control {
+  display: flex;
+  background: #04060d;
+  border: 1px solid var(--border-color);
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.segment-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.segment-btn.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-control {
+  background: #04060d;
+  border: 1px solid var(--border-color);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  width: 180px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+/* TOGGLE SWITCH STYLING */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #1e293b;
+  transition: .3s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: #00e5ff;
+}
+
+input:checked+.slider:before {
+  transform: translateX(18px);
+}
+
+/* ACCENT COLOR SELECTOR */
+.color-palette {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s;
+}
+
+.color-dot:hover {
+  transform: scale(1.1);
+}
+
+.color-dot.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.dot-cyan {
+  background-color: #00bcd4;
+}
+
+.dot-purple {
+  background-color: #9c27b0;
+}
+
+.dot-pink {
+  background-color: #e91e63;
+}
+
+.dot-orange {
+  background-color: #ff9800;
+}
+
+.dot-green {
+  background-color: #4caf50;
+}
+
+/* ABOUT BOX LAYOUT SPECIFICS */
+.about-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.app-logo-box {
+  width: 48px;
+  height: 48px;
+  background: none;
+  border: 1px solid rgba(0, 229, 255, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  overflow: hidden;
+  /* Prevents stray visual bleeding */
+}
+
+/* ADD THIS RULE TO CONTAIN THE LOGO IMAGE Dimensions */
+.app-logo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+.about-text h4 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.about-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   5. ACTION BOTTOM BAR
+   ========================================================================== */
+.bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+.status-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #10b981;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.action-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: #94a3b8;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00dfd8, #0072ff);
+  border: none;
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}

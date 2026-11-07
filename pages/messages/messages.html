@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
+    <link rel="stylesheet" href="messages-style.css">
+</head>
+<body>
+    <div class="message-container">
+        <!-- Sidebar Navigation Menu Left Sticky Anchor -->
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-nav__toggle" id="sidebar-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="sidebar-nav__menu">
+                <div class="menu-cluster">
+                    <a href="../dashboard/dashboard.html" class="menu-cluster__link">
+                        <span class="nav-icon">⊞</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="../messages/messages.html" class="menu-cluster__link active">
+                        <span class="nav-icon">✉</span>
+                        <span class="nav-label">Messages</span>
+                    </a>
+                    <a href="../tasks/tasks.html" class="menu-cluster__link">
+                        <span class="nav-icon">✓</span>
+                        <span class="nav-label">Tasks</span>
+                    </a>
+                    <a href="../calender/calender.html" class="menu-cluster__link">
+                        <span class="nav-icon">📆</span>
+                        <span class="nav-label">Calendar</span>
+                    </a>
+                    <a href="../reports/reports.html" class="menu-cluster__link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
+                </div>
+                <div class="menu-cluster menu-cluster--bottom">
+                    <a href="../settings/settings.html" class="menu-cluster__link">
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Workspace Main Wrapper -->
+        <div class="main-wrapper">
+
+            <!-- Top Application Header -->
+            <header class="workspace-header">
+                <div class="search-bar">
+                    <span class="search-bar__icon">🔍</span>
+                    <input type="text" class="search-bar__input" placeholder="Search...">
+                </div>
+                <div class="workspace-header__actions">
+                    <div class="action-trigger" id="profile-pill">
+                        <span class="profile-pill__avatar">👤</span>
+                        <span class="profile-pill__name">User Profile</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Side-by-Side Panel Layout System -->
+            <div class="workspace-body">
+
+                <!-- Left Side Contacts Pane Container -->
+                <div class="contact-list">
+                    <div class="brand">Messages</div>
+
+                    <div class="new-chat-btn">
+                        <div class="new-chat-label"><span>New Chat</span></div>
+                        <span class="plus-icon">+</span>
+                    </div>
+
+                    <div class="contacts-container">
+                        <!-- Item 1 -->
+                        <div class="contact-item">
+                            <div class="avatar"></div>
+                            <div class="contact-info">
+                                <div class="contact-header">
+                                    <span class="contact-name">Team Apollo</span>
+                                    <span class="contact-time">1:35 AM</span>
+                                </div>
+                                <div class="contact-preview">Hello, let me know if you are available today.</div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="contact-item">
+                            <div class="avatar"></div>
+                            <div class="contact-info">
+                                <div class="contact-header">
+                                    <span class="contact-name">Project Leads</span>
+                                    <span class="contact-time">1:05 AM</span>
+                                </div>
+                                <div class="contact-preview">Please check the document I sent you earlier.</div>
+                            </div>
+                        </div>
+
+                        <!-- Item 3 (Selected Panel) -->
+                        <div class="contact-item active">
+                            <div class="avatar"><span class="status-dot"></span></div>
+                            <div class="contact-info">
+                                <div class="contact-header">
+                                    <span class="contact-name">Monika S</span>
+                                    <span class="contact-time-active">10:55 AM</span>
+                                </div>
+                                <div class="contact-preview-active">We need to schedule a meeting for tomorrow.</div>
+                            </div>
+                        </div>
+
+                        <!-- Item 4 -->
+                        <div class="contact-item">
+                            <div class="avatar"></div>
+                            <div class="contact-info">
+                                <div class="contact-header">
+                                    <span class="contact-name">Project Leads</span>
+                                    <span class="contact-time">7:30 AM</span>
+                                </div>
+                                <div class="contact-preview">Brief description of the main assignment updates.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side Conversation Workspace Viewport -->
+                <main class="chat-conversation-viewport">
+                    <div class="chat-header-bar">
+                        <div class="chat-header-profile">
+                            <div class="chat-header-avatar"></div>
+                            <div class="chat-header-status">
+                                <div class="chat-header-name">Monika S - Operator</div>
+                                <div class="chat-header-badge">Online</div>
+                            </div>
+                        </div>
+                        <div class="chat-header-action-pill">
+                            <span>Online consultation with an operator</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages-container">
+                        <!-- Received Message -->
+                        <div class="message-bubble message-bubble--received">
+                            <div class="message-avatar"></div>
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Hello, let me know if you are available to start specific task
+                                    planner?</div>
+                            </div>
+                        </div>
+
+                        <!-- Sent Message -->
+                        <div class="message-bubble message-bubble--sent">
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Would you like me to specific task planner?</div>
+                                <div class="message-timestamp">1:35 AM</div>
+                            </div>
+                        </div>
+
+                        <!-- Received Message Asset -->
+                        <div class="message-bubble message-bubble--received">
+                            <div class="message-avatar"></div>
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Hello, we added animations to the workspace view panel and
+                                    exceptional UI layout elements.</div>
+                                <div class="message-asset-preview">📈 Waveform.svg</div>
+                            </div>
+                        </div>
+
+                        <!-- Sent Message -->
+                        <div class="message-bubble message-bubble--sent">
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Thanks, you?</div>
+                            </div>
+                        </div>
+
+                        <!-- Received Message Progress -->
+                        <div class="message-bubble message-bubble--received">
+                            <div class="message-avatar"></div>
+                            <div class="message-content-wrapper">
+                                <div class="message-text">I'm understanding one of a specific assignment task complete.
+                                </div>
+                                <div class="message-progress-ring">85% Complete</div>
+                            </div>
+                        </div>
+
+                        <!-- Sent Message -->
+                        <div class="message-bubble message-bubble--sent">
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Thank you so completing extensive task too are away you
+                                    understanding.</div>
+                                <div class="message-timestamp">8:57 PM</div>
+                            </div>
+                        </div>
+
+                        <!-- Received Message -->
+                        <div class="message-bubble message-bubble--received">
+                            <div class="message-avatar"></div>
+                            <div class="message-content-wrapper">
+                                <div class="message-text">Your overall integration for is-atking the late they does in
+                                    teamwork?</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Chat Input Bar Element Area Footer -->
+                    <div class="chat-input-bar">
+                        <div class="chat-input-wrapper">
+                            <input type="text" class="chat-input-field" placeholder="Type your message here...">
+                            <div class="chat-input-actions">
+                                <button class="chat-action-btn btn-mic">🎙️</button>
+                                <button class="chat-action-btn btn-attach">📎</button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+            </div>
+        </div>
+    </div>
+
+    <!--Attached Javascript Script File-->
+    <script src="messages-script.js"></script>
+</body>
+</html>

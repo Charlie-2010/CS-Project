@@ -1,0 +1,414 @@
+/* ==========================================================================
+  Base Layout Reset & Theme Definitions
+  ========================================================================== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0f12;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.reports-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #0b0f12;
+}
+
+/* ==========================================================================
+  Left Navigation Sidebar Panel
+  ========================================================================== */
+.sidebar-nav {
+  width: 60px;
+  /* Default collapsed width */
+  height: 100vh;
+  background-color: #18191a;
+  /* Matches dark UI theme */
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  /* Overlaps mid content when expanded */
+  overflow-x: hidden;
+}
+
+/* Expanded State for Sidebar */
+.sidebar-nav.expanded {
+  width: 220px;
+  /* Width when text labels are displayed */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Toggle Menu Bars Icon Styling */
+.sidebar-nav__toggle {
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding-left: 10px;
+}
+
+.sidebar-nav__toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 4px 0;
+  background-color: #ffffff;
+  transition: 0.3s;
+}
+
+/* Nav Menu Item Links Styling */
+.sidebar-nav__menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-cluster__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #b0b3b8;
+  transition: background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+.menu-cluster__link:hover,
+.menu-cluster__link.active {
+  background-color: #242526;
+  color: #ffffff;
+}
+
+.nav-icon {
+  font-size: 18px;
+  min-width: 25px;
+  text-align: center;
+}
+
+.nav-label {
+  margin-left: 15px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.sidebar-nav.expanded .nav-label {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ==========================================================================
+   Main Scrollable Dashboard Workspace Layout 
+   ========================================================================== */
+.report-workspace {
+  margin-left: 60px;
+  flex-grow: 1;
+  padding: 32px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  background-color: #0b0f12;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.report-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.filter-controls {
+  font-size: 14px;
+  color: #718096;
+}
+
+.filter-label {
+  margin-right: 8px;
+}
+
+.filter-opt {
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+}
+
+.filter-opt:hover {
+  color: #ffffff;
+}
+
+.filter-opt.active {
+  color: #ffffff;
+  background-color: #1c2630;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   KPI Performance Overview Cards Row
+   ========================================================================== */
+.kpi-row {
+  display: flex;
+  gap: 20px;
+}
+
+.kpi-card {
+  flex: 1;
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.kpi-card--cyan {
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.15) 0%, rgba(11, 15, 18, 0.6) 100%);
+  border: 1px solid #00b4d8;
+  box-shadow: 0 0 15px rgba(0, 180, 216, 0.25), inset 0 0 10px rgba(0, 180, 216, 0.1);
+}
+
+.kpi-card--purple {
+  background: linear-gradient(135deg, rgba(181, 23, 158, 0.15) 0%, rgba(11, 15, 18, 0.6) 100%);
+  border: 1px solid #b5179e;
+  box-shadow: 0 0 15px rgba(181, 23, 158, 0.25), inset 0 0 10px rgba(181, 23, 158, 0.1);
+}
+
+.kpi-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.kpi-card--cyan .kpi-icon-wrapper {
+  color: #00b4d8;
+}
+
+.kpi-card--purple .kpi-icon-wrapper {
+  color: #b5179e;
+}
+
+.kpi-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* ==========================================================================
+   Middle Row Block Grid System (Chart Feed + Side Trackers)
+   ========================================================================== */
+.analytics-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.analytics-card {
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 14px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.analytics-card__main {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.analytics-card__side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.chart-container {
+  width: 100%;
+  position: relative;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.chart-svg path#chart-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0px 2px 8px rgba(0, 180, 216, 0.5));
+}
+
+.chart-node-point {
+  fill: #00b4d8;
+  stroke: #12181d;
+  stroke-width: 3;
+  cursor: pointer;
+  transition: r 0.2s ease, fill 0.2s ease;
+}
+
+.chart-node-point:hover {
+  r: 7;
+  fill: #ffffff;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-label {
+  font-size: 13px;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background-color: #1c2630;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0;
+}
+
+.progress-fill--cyan {
+  background: linear-gradient(90deg, #00b4d8, #00f5ff);
+  box-shadow: 0 0 12px rgba(0, 180, 216, 0.4);
+}
+
+.progress-fill--blue {
+  background: linear-gradient(90deg, #0077b6, #00b4d8);
+  box-shadow: 0 0 12px rgba(0, 119, 182, 0.4);
+}
+
+.progress-fill--magenta {
+  background: linear-gradient(90deg, #b5179e, #7209b7);
+  box-shadow: 0 0 12px rgba(181, 23, 158, 0.4);
+}
+
+/* ==========================================================================
+   Bottom Insights Distribution Matrix Cards Layout
+   ========================================================================== */
+.insights-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  flex-shrink: 0;
+  margin-bottom: 32px;
+}
+
+.insight-card {
+  flex: 1;
+  background-color: #12181d;
+  border: 1px solid #1f2a35;
+  border-radius: 14px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(31, 42, 53, 0.5);
+  padding-bottom: 12px;
+}
+
+.insight-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.insight-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

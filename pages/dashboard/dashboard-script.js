@@ -1,10 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // === Sidebar Navigation Expansion Interaction Module ===
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('expanded');
+        });
+
+        document.addEventListener('click', (event) => {
+            const isClickInsideSidebar = sidebar.contains(event.target);
+            if (!isClickInsideSidebar && sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('expanded');
+            }
+        });
+    }
+
+    // === Profile Page button Functionality ===
+    const profilebutton=document.querySelector('#profile-pill');
+    if (profilebutton) {
+        profilebutton.addEventListener('click', () =>{
+            window.location.href = '../profile/profile.html';
+        });
+    }
+
+    // === Kanban Board Drag and Drop Engine ===
     const cards = document.querySelectorAll('.task-card');
     const columns = document.querySelectorAll('.kanban-col');
 
     let draggedCard = null;
 
-    // Initialize HTML5 Drag and Drop events for items
     cards.forEach(card => {
         card.addEventListener('dragstart', function(e) {
             draggedCard = this;
@@ -20,18 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 0);
         });
 
-        // Initialize priority star button interaction limits
         const star = card.querySelector('.star-toggle');
         if (star) {
             star.addEventListener('click', function(e) {
-                e.stopPropagation(); // Avoid picking up parent task card element triggers
+                e.stopPropagation();
                 this.classList.toggle('star-toggle--active');
                 this.textContent = this.classList.contains('star-toggle--active') ? '★' : '☆';
             });
         }
     });
 
-    // Initialize Column Drop zones
     columns.forEach(column => {
         const cardsContainer = column.querySelector('.kanban-col__cards');
 
@@ -57,9 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Contextual workflow renderer helper adjusting inner node states dynamically
     function adaptCardToColumnStatus(card, status) {
-        // Strip any context progress or complete tags cleanly first
         const existingProgress = card.querySelector('.progress-block');
         if (existingProgress) existingProgress.remove();
 
@@ -72,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (check) check.remove();
         });
 
-        // Map behavior context allocations matches
         if (status === 'In Progress') {
             const progressHtml = `
                 <div class="progress-block">

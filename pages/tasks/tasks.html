@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks Board</title>
+    <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
+    <link rel="stylesheet" href="tasks-style.css">
+</head>
+<body>
+    <div class="tasks-container">
+        <!-- Sidebar Navigation Menu Left Sticky Anchor -->
+        <aside class="sidebar-nav" id="sidebar">
+            <div class="sidebar-nav__toggle" id="sidebar-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <nav class="sidebar-nav__menu">
+                <div class="menu-cluster">
+                    <a href="../dashboard/dashboard.html" class="menu-cluster__link">
+                        <span class="nav-icon">⊞</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="../messages/messages.html" class="menu-cluster__link">
+                        <span class="nav-icon">✉</span>
+                        <span class="nav-label">Messages</span>
+                    </a>
+                    <a href="../tasks/tasks.html" class="menu-cluster__link active">
+                        <span class="nav-icon">✓</span>
+                        <span class="nav-label">Tasks</span>
+                    </a>
+                    <a href="../calender/calender.html" class="menu-cluster__link">
+                        <span class="nav-icon">📆</span>
+                        <span class="nav-label">Calendar</span>
+                    </a>
+                    <a href="../reports/reports.html" class="menu-cluster__link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
+                </div>
+                <div class="menu-cluster menu-cluster--bottom">
+                    <a href="../settings/settings.html" class="menu-cluster__link">
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Body Content Workspace Component Wrapper -->
+        <main class="tasks-workspace">
+            
+            <!-- Top Core Progress Indicator Header Bar Layout Component (Dual Domain Tracks) -->
+            <header class="tasks-progress-header">
+                <!-- Track Item 1: Core Domain A -->
+                <div class="progress-track-block">
+                    <div class="progress-header-info">
+                        <span class="progress-header-title">Core Domain A: Python Chess Engine</span>
+                        <span class="progress-header-percentage" id="domain-a-pct">22% Complete</span>
+                    </div>
+                    <div class="progress-header-track">
+                        <div class="progress-header-fill progress-header-fill--cyan" id="domain-a-bar" style="width: 22%;"></div>
+                    </div>
+                </div>
+
+                <!-- Track Item 2: Core Domain B -->
+                <div class="progress-track-block" style="margin-top: 16px;">
+                    <div class="progress-header-info">
+                        <span class="progress-header-title">Core Domain B: Full Stack Engine</span>
+                        <span class="progress-header-percentage" id="domain-b-pct">45% Complete</span>
+                    </div>
+                    <div class="progress-header-track">
+                        <div class="progress-header-fill progress-header-fill--blue" id="domain-b-bar" style="width: 45%;"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Kanban Board Columns Row Grid Split System Layout -->
+            <div class="kanban-board-grid">
+                
+                <!-- COLUMN 1: DRAFT -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <h2 class="column-title">Draft <span class="column-count" id="count-draft">(0)</span></h2>
+                        <span class="column-options">•••</span>
+                    </div>
+                    <div class="cards-list-container">
+                        <!-- Card 1 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Develop Node.js Route Handlers (PCM Mock)</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--cyan">PCM Backend</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--high">⚡ high</span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Develop Node.js Route Handlers (PCM Mock)</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--cyan">PCM Backend</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--mid">⚡ mid</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Task Action Controller Button Area -->
+                    <button type="button" class="btn-add-task">
+                        <span class="add-btn-icon">+</span> Add card
+                    </button>
+                </div>
+
+                <!-- COLUMN 2: IN PROGRESS -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <h2 class="column-title">In Progress <span class="column-count" id="count-in-progress">(0)</span></h2>
+                        <span class="column-options">•••</span>
+                    </div>
+                    <div class="cards-list-container">
+                        <!-- Card 1 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Write MySQL Schema Migration Script</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--orange">SQL Arch</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--mid">⚡ mid</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Write MySQL Schema Migration Script</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--blue">Node Engine</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--high">⚡ high</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Implement Real-Time Update Logic (WebSocket)</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--blue">Node Engine</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--high">⚡ high</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Create Task Action Controller Button Area -->
+                    <button type="button" class="btn-add-task">
+                        <span class="add-btn-icon">+</span> Add card
+                    </button>
+                </div>
+
+                <!-- COLUMN 3: EDITING -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <h2 class="column-title">Editing <span class="column-count" id="count-editing">(0)</span></h2>
+                        <span class="column-options">•••</span>
+                    </div>
+                    <div class="cards-list-container">
+                        <!-- Card 1 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Implement Real-Time Update Logic (WebSocket)</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--blue">Node Engine</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--high">⚡ high</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Implement Real-Time Update Logic (WebSocket)</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--blue">Node Engine</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--mid">⚡ mid</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Create Task Action Controller Button Area -->
+                    <button type="button" class="btn-add-task">
+                        <span class="add-btn-icon">+</span> Add card
+                    </button>
+                </div>
+
+                <!-- COLUMN 4: DONE -->
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <h2 class="column-title">Done <span class="column-count" id="count-done">(0)</span></h2>
+                        <span class="column-options">•••</span>
+                    </div>
+                    <div class="cards-list-container">
+                        <div class="kanban-card kanban-card--done-highlight">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Refactor Express Middleware for Auth</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--blue">Node Engine</span>
+                            </div>
+                            <div class="chart-metrics-payload">
+                                <div class="metric-stat-line">Velocity: <span class="stat-highlight">4.8 / day</span></div>
+                                <div class="metric-stat-line">Score: <span class="stat-highlight">92%</span></div>
+                                <div class="card-chart-vector">
+                                    <svg viewBox="0 0 160 40" width="100%" height="40" class="mini-chart-svg">
+                                        <path d="M 0 35 C 30 35, 50 15, 80 20 C 110 25, 130 5, 160 10" fill="none" stroke="#00b4d8" stroke-width="2"/>
+                                        <path d="M 0 30 C 30 25, 50 35, 80 15 C 110 5, 130 25, 160 20" fill="none" stroke="#b5179e" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="kanban-card">
+                            <div class="card-top-meta">
+                                <span class="card-category">Developer</span>
+                                <span class="card-dots">•••</span>
+                            </div>
+                            <h3 class="card-heading">Refactor Express Middleware for Auth</h3>
+                            <div class="card-tags-row">
+                                <span class="tag-pill tag-pill--purple">Node Engine</span>
+                            </div>
+                            <div class="card-footer-row">
+                                <span class="priority-indicator priority-indicator--mid">⚡ mid</span>
+                                <span class="verify-check-icon">✓</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Create Task Action Controller Button Area -->
+                    <button type="button" class="btn-add-task">
+                        <span class="add-btn-icon">+</span> Add card
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="tasks-script.js"></script>
+</body>
+</html>

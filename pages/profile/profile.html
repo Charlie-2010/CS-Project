@@ -6,9 +6,10 @@
     <title>Profile</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="profile-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 <body>
-    <div class="dashboard-container">
+    <div class="dashboard-container profile-container">
         <!-- Sidebar Navigation Menu Left Sticky Anchor -->
         <aside class="sidebar-nav" id="sidebar">
             <div class="sidebar-nav__toggle" id="sidebar-toggle">
@@ -27,13 +28,13 @@
                         <span class="nav-icon">✉</span>
                         <span class="nav-label">Messages</span>
                     </a>
-                    <a href="tasks.html" class="menu-cluster__link">
+                    <a href="../tasks/tasks.html" class="menu-cluster__link">
                         <span class="nav-icon">✓</span>
                         <span class="nav-label">Tasks</span>
                     </a>
-                    <a href="analytics.html" class="menu-cluster__link">
-                        <span class="nav-icon">🌐</span>
-                        <span class="nav-label">Analytics</span>
+                    <a href="../calender/calender.html" class="menu-cluster__link">
+                        <span class="nav-icon">📆</span>
+                        <span class="nav-label">Calendar</span>
                     </a>
                     <a href="../reports/reports.html" class="menu-cluster__link">
                         <span class="nav-icon">📊</span>
@@ -57,9 +58,9 @@
                 <h1 class="profile-title">Profile Settings</h1>
                 <div class="filter-controls">
                     <span class="filter-label">Filter:</span>
-                    <span class="filter-opt active" data-filter="weekly">Weekly</span> /
-                    <span class="filter-opt" data-filter="monthly">Monthly</span> /
-                    <span class="filter-opt" data-filter="overall">Overall</span>
+                    <button type="button" class="filter-opt active" data-filter="weekly">Weekly</button> /
+                    <button type="button" class="filter-opt" data-filter="monthly">Monthly</button> /
+                    <button type="button" class="filter-opt" data-filter="overall">Overall</button>
                 </div>
             </header>
 
@@ -73,8 +74,7 @@
                         <div class="hud-outer-ring">
                             <div class="hud-inner-ring">
                                 <div class="avatar-image-frame">
-                                    <!-- Embedded high-resolution portrait sample component -->
-                                    <img src="https://unsplash.com" alt="Monika S Profile Avatar" class="avatar-img">
+                                    <span class="avatar-initials" aria-label="Profile initials">MS</span>
                                 </div>
                             </div>
                         </div>
@@ -82,32 +82,31 @@
 
                     <!-- Metadata Text List Block Group -->
                     <div class="metadata-block">
-                        <p class="meta-line">High-level data: <span class="meta-val">Crektod</span></p>
-                        <p class="meta-line">High-level-data: <span class="meta-val">Wiella Jins 11</span></p>
-                        <p class="meta-line">Low level matna: <span class="meta-val">About, Go0%</span></p>
+                        <p class="meta-line">Username: <span class="meta-val">monikaS</span></p>
+                        <p class="meta-line">Email: <span class="meta-val">email@gmail.com</span></p>
+                        <p class="meta-line">Time zone: <span class="meta-val">Choose a time zone</span></p>
                     </div>
                 </div>
 
                 <!-- Right Column Panel Layout: Form Parameters + Performance Parameters -->
                 <div class="profile-forms-column">
-                    
                     <!-- Section Card 1: Account Parameters Grid Input Controls -->
                     <div class="profile-card">
                         <h2 class="section-title">Account Parameters</h2>
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label class="form-label" for="username-field">Username</label>
-                                <input type="text" id="username-field" class="form-input" value="monikaS" placeholder="Enter username">
+                                <input type="text" id="username-field" class="form-input" value="monikaS" placeholder="Enter username" disabled>
                             </div>
                             <div class="form-group flex-1">
                                 <label class="form-label" for="email-field">Email</label>
-                                <input type="email" id="email-field" class="form-input" value="email@ggmail.com" placeholder="Enter email address">
+                                <input type="email" id="email-field" class="form-input" value="email@gmail.com" placeholder="Enter email address" disabled>
                             </div>
                             <div class="form-group flex-1">
                                 <label class="form-label" for="timezone-select">Preferred Time Zone</label>
                                 <div class="select-wrapper">
-                                    <select id="timezone-select" class="form-input form-select">
-                                        <option value="default" selected>Prefered Time Zone</option>
+                                    <select id="timezone-select" class="form-input form-select" disabled>
+                                        <option value="default" selected>Choose a time zone</option>
                                         <option value="utc">UTC (Coordinated Universal Time)</option>
                                         <option value="est">EST (Eastern Standard Time)</option>
                                         <option value="ist">IST (Indian Standard Time)</option>
@@ -148,7 +147,10 @@
 
                     <!-- Lower Align Control Submission Block -->
                     <div class="form-actions-row">
-                        <button type="button" class="btn-update-profile" id="btn-save-profile">Update Profile</button>
+                        <p id="profile-form-error" role="alert" class="profile-form-error"></p>
+                        <button type="button" class="btn-secondary-profile" id="btn-edit-profile">Edit Profile</button>
+                        <button type="button" class="btn-secondary-profile" id="btn-cancel-profile" hidden>Cancel</button>
+                        <button type="button" class="btn-update-profile" id="btn-save-profile" hidden>Save Changes</button>
                     </div>
 
                 </div>
@@ -157,6 +159,7 @@
         </div>
     </div>
 
+    <script src="../shared-ui.js"></script>
     <script src="profile-script.js"></script>
 </body>
 </html>

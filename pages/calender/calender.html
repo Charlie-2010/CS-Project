@@ -6,6 +6,7 @@
     <title>Calendar</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="calender-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 <body>
     <div class="calendar-container">
@@ -78,8 +79,8 @@
                     <div class="month-view-header">
                         <h2 class="month-view-header__title" id="current-month-display">October 2024</h2>
                         <div class="month-view-header__nav">
-                            <button class="nav-arrow" id="prev-month-btn">‹</button>
-                            <button class="nav-arrow" id="next-month-btn">›</button>
+                            <button class="nav-arrow" id="prev-month-btn" aria-label="Previous month">‹</button>
+                            <button class="nav-arrow" id="next-month-btn" aria-label="Next month">›</button>
                         </div>
                     </div>
 
@@ -113,11 +114,11 @@
     </div>
 
     <!-- Inline Quick Task Creator Modal Portal Component -->
-    <div class="modal-overlay" id="event-modal">
-        <div class="modal-card">
+    <div class="modal-overlay" id="event-modal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="event-modal-title">
             <div class="modal-card__header">
-                <h3>Create New Entry</h3>
-                <button class="modal-close" id="modal-close-btn">&times;</button>
+                <h3 id="event-modal-title">Create New Entry</h3>
+                <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close dialog">&times;</button>
             </div>
             <form class="modal-form" id="event-creation-form">
                 <div class="form-group">
@@ -138,9 +139,10 @@
                     <div class="form-group">
                         <label for="event-priority">Priority</label>
                         <select id="event-priority">
-                            <option value="high">High</option>
-                            <option value="mid" selected>Mid</option>
-                            <option value="low">Low</option>
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="HIGH">High</option>
+                            <option value="URGENT">Urgent</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -152,11 +154,13 @@
                         </select>
                     </div>
                 </div>
+                <p id="event-form-error" class="event-form-error" role="alert"></p>
                 <button type="submit" class="submit-btn">Save Event Anchor</button>
             </form>
         </div>
     </div>
 
+    <script src="../shared-ui.js"></script>
     <script src="calender-script.js"></script>
 </body>
 </html>

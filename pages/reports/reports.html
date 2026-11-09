@@ -6,6 +6,7 @@
     <title>Performance Intelligence Report</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="reports-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 <body>
     <div class="reports-container">
@@ -55,8 +56,8 @@
                 <h1 class="report-title">Performance Intelligence Report</h1>
                 <div class="filter-controls">
                     <span class="filter-label">Filter:</span>
-                    <span class="filter-opt active" data-days="7">7 Days</span> /
-                    <span class="filter-opt" data-days="30">30 Days</span>
+                    <button type="button" class="filter-opt active" data-days="7">7 Days</button> /
+                    <button type="button" class="filter-opt" data-days="30">30 Days</button>
                 </div>
             </section>
 
@@ -191,6 +192,7 @@
         </main>
     </div>
 
+    <script src="../shared-ui.js"></script>
     <script src="reports-script.js"></script>
 </body>
 </html>

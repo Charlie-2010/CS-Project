@@ -1,258 +1,230 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // === Core Components Selectors Matrix ===
-    const calendarGridMatrix = document.getElementById('calendar-grid-matrix');
-    const currentMonthDisplay = document.getElementById('current-month-display');
-    const timelineDateTitle = document.getElementById('timeline-date-title');
-    const timelineEventsWrapper = document.getElementById('timeline-events-wrapper');
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.getElementById("calendar-grid-matrix");
+  const monthLabel = document.getElementById("current-month-display");
+  const timelineTitle = document.getElementById("timeline-date-title");
+  const timeline = document.getElementById("timeline-events-wrapper");
+  const modal = document.getElementById("event-modal");
+  const form = document.getElementById("event-creation-form");
+  const formError = document.getElementById("event-form-error");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    const prevMonthBtn = document.getElementById('prev-month-btn');
-    const nextMonthBtn = document.getElementById('next-month-btn');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const profilePill = document.getElementById('profile-pill');
+  const addDays = (date, offset) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + offset);
+    return result;
+  };
+  const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const formatTime = time => {
+    const [hourText, minute] = time.split(":");
+    const hour = Number(hourText);
+    return `${hour % 12 || 12}:${minute} ${hour >= 12 ? "PM" : "AM"}`;
+  };
+  const dayName = new Intl.DateTimeFormat(undefined, { weekday: "long" });
+  const fullDate = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" });
 
-    const eventModal = document.getElementById('event-modal');
-    const openModalTrigger = document.getElementById('add-event-quick-trigger');
-    const closeModalBtn = document.getElementById('modal-close-btn');
-    const eventCreationForm = document.getElementById('event-creation-form');
+  const events = [
+    { date: addDays(today, 0), title: "Review project milestones", start: "09:30", end: "10:30", priority: "HIGH", theme: "cyan" },
+    { date: addDays(today, 1), title: "Update database schema", start: "13:00", end: "14:00", priority: "MEDIUM", theme: "blue" },
+    { date: addDays(today, 3), title: "Prepare sprint notes", start: "11:00", end: "11:45", priority: "LOW", theme: "purple" },
+    { date: addDays(today, 8), title: "Review API integration", start: "15:00", end: "16:00", priority: "HIGH", theme: "cyan" },
+    { date: addDays(today, -3), title: "Plan weekly priorities", start: "10:00", end: "10:30", priority: "MEDIUM", theme: "blue" }
+  ];
+  let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  let selectedDate = new Date(today);
+  let activeFilter = "Weekly";
 
-    // === System State Database Structure ===
-    const state = {
-        currentDate: new Date(2024, 9, 1), // Oct 2024 per UI mockup baseline
-        selectedDay: 24, // Active highlighted day anchor
-        activeFilter: 'Weekly',
-        eventsDatabase: {
-            "2024-09-01": [{ title: "SQL Arch Review", start: "10:00AM", end: "11:30AM", priority: "mid", theme: "cyan" }],
-            "2024-09-03": [{ title: "Node Route Dev (PCM Mock)", start: "01:30PM", end: "03:00PM", priority: "high", theme: "blue" }],
-            "2024-09-06": [{ title: "SQL Arch Review", start: "09:00AM", end: "10:30AM", priority: "mid", theme: "cyan" }],
-            "2024-09-07": [{ title: "SQL Arch Review", start: "04:00PM", end: "05:30PM", priority: "mid", theme: "cyan" }],
-            "2024-09-10": [{ title: "Node Route Dev (PCM Mock)", start: "01:30PM", end: "03:00PM", priority: "high", theme: "blue" }],
-            "2024-09-13": [{ title: "Node Route Dev (PCM Mock)", start: "11:00AM", end: "12:30PM", priority: "high", theme: "blue" }],
-            "2024-09-15": [{ title: "SQL Arch Dev", start: "02:00PM", end: "03:30PM", priority: "mid", theme: "blue" }],
-            "2024-09-20": [{ title: "Node Route Express Auth", start: "03:00PM", end: "04:30PM", priority: "high", theme: "purple" }],
-            "2024-09-24": [
-                { title: "Backend PCM Mock Route Handlers (high)", start: "10:00AM", end: "11:30AM", priority: "high", theme: "cyan" },
-                { title: "SQL Schema Migration Script (mid)", start: "01:30PM", end: "03:00PM", priority: "mid", theme: "blue" },
-                { title: "Express Auth Middleware Refactor", start: "04:30PM", end: "06:00PM", priority: "high", theme: "purple" }
-            ],
-            "2024-09-25": [{ title: "Refactor Express Auth", start: "09:30AM", end: "11:00AM", priority: "high", theme: "purple" }],
-            "2024-09-28": [{ title: "Node Route Dev (PCM Mock)", start: "01:30PM", end: "03:00PM", priority: "high", theme: "purple" }]
-        }
-    };
+  function matchesFilter(date) {
+    if (activeFilter === "Overall") return true;
+    if (activeFilter === "Monthly") {
+      return date.getFullYear() === currentMonth.getFullYear() && date.getMonth() === currentMonth.getMonth();
+    }
+    const weekStart = new Date(selectedDate);
+    weekStart.setDate(selectedDate.getDate() - selectedDate.getDay());
+    const weekEnd = addDays(weekStart, 7);
+    return date >= weekStart && date < weekEnd;
+  }
 
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function renderCalendar() {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    monthLabel.textContent = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(currentMonth);
+    grid.replaceChildren();
 
-    function init() {
-        renderCalendarGrid();
-        renderTimelinePanel();
-        setupEventListeners();
+    const firstWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPreviousMonth = new Date(year, month, 0).getDate();
+    const cellCount = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+    grid.style.gridTemplateRows = `repeat(${cellCount / 7}, minmax(0, 1fr))`;
+
+    for (let index = 0; index < cellCount; index++) {
+      const dayNumber = index - firstWeekday + 1;
+      let date;
+      let muted = false;
+      if (dayNumber < 1) {
+        date = new Date(year, month - 1, daysInPreviousMonth + dayNumber);
+        muted = true;
+      } else if (dayNumber > daysInMonth) {
+        date = new Date(year, month + 1, dayNumber - daysInMonth);
+        muted = true;
+      } else {
+        date = new Date(year, month, dayNumber);
+      }
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = `grid-day${muted ? " dynamic-muted-day" : ""}`;
+      if (dateKey(date) === dateKey(selectedDate)) cell.classList.add("active-selected-day");
+      cell.setAttribute("aria-pressed", String(dateKey(date) === dateKey(selectedDate)));
+      cell.setAttribute("aria-label", fullDate.format(date));
+      const number = document.createElement("span");
+      number.className = "day-number";
+      number.textContent = String(date.getDate());
+      cell.appendChild(number);
+
+      const tagList = document.createElement("span");
+      tagList.className = "event-tag-list";
+      events.filter(event => dateKey(event.date) === dateKey(date) && matchesFilter(event.date)).forEach(event => {
+        const tag = document.createElement("span");
+        tag.className = `event-tag tag-${event.theme}`;
+        tag.textContent = event.title;
+        tagList.appendChild(tag);
+      });
+      cell.appendChild(tagList);
+      cell.addEventListener("click", () => {
+        selectedDate = new Date(date);
+        if (muted) currentMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        renderCalendar();
+        renderTimeline();
+      });
+      grid.appendChild(cell);
+    }
+  }
+
+  function filteredEvents() {
+    return events.filter(event => matchesFilter(event.date))
+      .sort((a, b) => a.date - b.date || a.start.localeCompare(b.start));
+  }
+
+  function renderTimeline() {
+    const title = activeFilter === "Weekly"
+      ? `${dayName.format(selectedDate)} · week view`
+      : activeFilter === "Monthly"
+        ? new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(currentMonth)
+        : "All scheduled tasks";
+    timelineTitle.textContent = title;
+    timeline.replaceChildren();
+    const visibleEvents = filteredEvents();
+    if (!visibleEvents.length) {
+      const empty = document.createElement("p");
+      empty.className = "calendar-empty-state";
+      empty.textContent = "No tasks match this date range. Add an event to get started.";
+      timeline.appendChild(empty);
+      return;
     }
 
-    // === Calendar Days Layout Rendering Loop ===
-    function renderCalendarGrid() {
-        if (!calendarGridMatrix) return;
-        calendarGridMatrix.innerHTML = '';
+    visibleEvents.forEach(event => {
+      const card = document.createElement("article");
+      card.className = `timeline-card border-${event.theme}`;
+      const header = document.createElement("div");
+      header.className = "timeline-card__header";
+      const dateLabel = document.createElement("span");
+      dateLabel.className = "time-range";
+      dateLabel.textContent = `${fullDate.format(event.date)} · ${formatTime(event.start)} - ${formatTime(event.end)}`;
+      header.appendChild(dateLabel);
+      const title = document.createElement("h3");
+      title.className = "timeline-card__title";
+      title.textContent = event.title;
+      const footer = document.createElement("div");
+      footer.className = "timeline-card__footer";
+      const priority = document.createElement("span");
+      priority.className = `priority-badge status-${event.priority.toLowerCase()}`;
+      priority.textContent = ({ LOW: "Low", MEDIUM: "Medium", HIGH: "High", URGENT: "Urgent" })[event.priority];
+      footer.appendChild(priority);
+      card.append(header, title, footer);
+      timeline.appendChild(card);
+    });
+  }
 
-        const year = state.currentDate.getFullYear();
-        const month = state.currentDate.getMonth();
+  document.getElementById("prev-month-btn").addEventListener("click", () => {
+    currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+    selectedDate = new Date(currentMonth);
+    renderCalendar();
+    renderTimeline();
+  });
+  document.getElementById("next-month-btn").addEventListener("click", () => {
+    currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+    selectedDate = new Date(currentMonth);
+    renderCalendar();
+    renderTimeline();
+  });
 
-        currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+  document.querySelectorAll(".filter-btn").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter));
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+      document.querySelectorAll(".filter-btn").forEach(item => {
+        item.classList.toggle("active", item === button);
+        item.setAttribute("aria-pressed", String(item === button));
+      });
+      renderCalendar();
+      renderTimeline();
+    });
+  });
 
-        const firstDayIndex = new Date(year, month, 1).getDay();
-        const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
-        const totalDaysInPrevMonth = new Date(year, month, 0).getDate();
+  const openButton = document.getElementById("add-event-quick-trigger");
+  const closeButton = document.getElementById("modal-close-btn");
+  let modalOpener = null;
+  function closeModal() {
+    modal.classList.remove("active");
+    formError.textContent = "";
+    modalOpener?.focus();
+    modalOpener = null;
+    modal.setAttribute("aria-hidden", "true");
+  }
+  openButton.addEventListener("click", () => {
+    modalOpener = document.activeElement;
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+    document.getElementById("event-title").focus();
+  });
+  closeButton.addEventListener("click", closeModal);
+  modal.addEventListener("click", event => {
+    if (event.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && modal.classList.contains("active")) closeModal();
+  });
 
-        // Previous month filler nodes
-        for (let i = firstDayIndex - 1; i >= 0; i--) {
-            const dayNum = totalDaysInPrevMonth - i;
-            createDayCell(dayNum, true, false);
-        }
-
-        // Active month cell nodes
-        for (let day = 1; day <= totalDaysInMonth; day++) {
-            const isSelected = (day === state.selectedDay);
-            createDayCell(day, false, isSelected);
-        }
-
-        // Next month filler nodes to satisfy grid rows
-        const renderedCellsCount = firstDayIndex + totalDaysInMonth;
-        const totalCellsNeeded = 42;
-        for (let nextDay = 1; nextDay <= (totalCellsNeeded - renderedCellsCount); nextDay++) {
-            createDayCell(nextDay, true, false);
-        }
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const title = document.getElementById("event-title").value.trim();
+    const start = document.getElementById("event-start").value;
+    const end = document.getElementById("event-end").value;
+    if (!title) {
+      formError.textContent = "Enter a task title.";
+      document.getElementById("event-title").focus();
+      return;
     }
-
-    function createDayCell(dayNumber, isMuted, isSelected) {
-        const cell = document.createElement('div');
-        cell.classList.add('grid-day');
-        if (isMuted) cell.classList.add('dynamic-muted-day');
-        if (isSelected && !isMuted) cell.classList.add('active-selected-day');
-
-        cell.innerHTML = `<span class="day-number">${dayNumber}</span>`;
-
-        const tagListWrapper = document.createElement('div');
-        tagListWrapper.classList.add('event-tag-list');
-
-        if (!isMuted) {
-            const lookupString = getDateLookupString(dayNumber);
-            const explicitDayEvents = state.eventsDatabase[lookupString] || [];
-            explicitDayEvents.forEach(evt => {
-                const tag = document.createElement('div');
-                tag.classList.add('event-tag', `tag-${evt.theme}`);
-                tag.textContent = evt.title;
-                tagListWrapper.appendChild(tag);
-            });
-
-            cell.addEventListener('click', () => {
-                document.querySelectorAll('.active-selected-day').forEach(c => c.classList.remove('active-selected-day'));
-                cell.classList.add('active-selected-day');
-                state.selectedDay = dayNumber;
-                renderTimelinePanel();
-            });
-        }
-
-        cell.appendChild(tagListWrapper);
-        calendarGridMatrix.appendChild(cell);
+    if (end <= start) {
+      formError.textContent = "End time must be later than start time.";
+      document.getElementById("event-end").focus();
+      return;
     }
+    events.push({
+      date: new Date(selectedDate),
+      title,
+      start,
+      end,
+      priority: document.getElementById("event-priority").value,
+      theme: document.getElementById("event-theme").value
+    });
+    form.reset();
+    closeModal();
+    renderCalendar();
+    renderTimeline();
+    window.AppUI.toast("Event added to your temporary calendar.", "success");
+  });
 
-    // === Timeline Side Panel Synchronization ===
-    function renderTimelinePanel() {
-        if (!timelineDateTitle || !timelineEventsWrapper) return;
-
-        const monthStr = monthShort[state.currentDate.getMonth()];
-        timelineDateTitle.textContent = `${monthStr} ${state.selectedDay}${getOrdinalSuffix(state.selectedDay)}`;
-
-        timelineEventsWrapper.innerHTML = '';
-        const dateKey = getDateLookupString(state.selectedDay);
-        const dailyEvents = state.eventsDatabase[dateKey] || [];
-
-        if (dailyEvents.length === 0) {
-            timelineEventsWrapper.innerHTML = `<p class="time-range" style="padding:20px; text-align:center;">No task entries scheduled.</p>`;
-            return;
-        }
-
-        dailyEvents.forEach(event => {
-            const card = document.createElement('div');
-            card.classList.add('timeline-card', `border-${event.theme}`);
-            card.innerHTML = `
-                <div class="timeline-card__header">
-                    <span class="time-range">${event.start} - ${event.end}</span>
-                    <button class="card-options-btn">•••</button>
-                </div>
-                <h3 class="timeline-card__title">${event.title}</h3>
-                <div class="timeline-card__footer">
-                    <span class="priority-badge status-${event.priority}">${event.priority}</span>
-                    <span class="status-icon success">✓</span>
-                </div>
-            `;
-            timelineEventsWrapper.appendChild(card);
-        });
-    }
-
-    // === Core UI Event Interceptors ===
-    function setupEventListeners() {
-        if (prevMonthBtn) {
-            prevMonthBtn.addEventListener('click', () => shiftMonthOffset(-1));
-        }
-        if (nextMonthBtn) {
-            nextMonthBtn.addEventListener('click', () => shiftMonthOffset(1));
-        }
-
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                filterButtons.forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                state.activeFilter = e.currentTarget.getAttribute('data-filter');
-            });
-        });
-
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                sidebar.classList.toggle('expanded');
-            });
-
-            document.addEventListener('click', (event) => {
-                if (!sidebar.contains(event.target) && sidebar.classList.contains('expanded')) {
-                    sidebar.classList.remove('expanded');
-                }
-            });
-        }
-
-        if (profilePill) {
-            profilePill.addEventListener('click', () => {
-                window.location.href = '../profile/profile.html';
-            });
-        }
-
-        if (openModalTrigger) openModalTrigger.addEventListener('click', () => eventModal.classList.add('active'));
-        if (closeModalBtn) closeModalBtn.addEventListener('click', () => eventModal.classList.remove('active'));
-
-        if (eventCreationForm) {
-            eventCreationForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                const title = document.getElementById('event-title').value;
-                const startRaw = document.getElementById('event-start').value;
-                const endRaw = document.getElementById('event-end').value;
-                const priority = document.getElementById('event-priority').value;
-                const theme = document.getElementById('event-theme').value;
-
-                const dateKey = getDateLookupString(state.selectedDay);
-                if (!state.eventsDatabase[dateKey]) state.eventsDatabase[dateKey] = [];
-
-                state.eventsDatabase[dateKey].push({
-                    title,
-                    start: formatTime12H(startRaw),
-                    end: formatTime12H(endRaw),
-                    priority,
-                    theme
-                });
-
-                eventCreationForm.reset();
-                eventModal.classList.remove('active');
-
-                renderCalendarGrid();
-                renderTimelinePanel();
-            });
-        }
-    }
-
-    // === State Handlers & Mathematics Normalizers ===
-    function shiftMonthOffset(offset) {
-        state.currentDate.setMonth(state.currentDate.getMonth() + offset);
-        state.selectedDay = 1;
-        renderCalendarGrid();
-        renderTimelinePanel();
-    }
-
-    function getDateLookupString(day) {
-        const year = state.currentDate.getFullYear();
-        const month = String(state.currentDate.getMonth()).padStart(2, '0');
-        const dayStr = String(day).padStart(2, '0');
-        return `${year}-${month}-${dayStr}`;
-    }
-
-    function getOrdinalSuffix(val) {
-        if (val > 3 && val < 21) return 'th';
-        switch (val % 10) {
-            case 1: return "st";
-            case 2: return "nd";
-            case 3: return "rd";
-            default: return "th";
-        }
-    }
-
-    function formatTime12H(time24) {
-        const [hrs, mins] = time24.split(':');
-        let hours = parseInt(hrs, 10);
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12;
-        return `${hours}:${mins}${ampm}`;
-    }
-
-    init();
+  renderCalendar();
+  renderTimeline();
 });

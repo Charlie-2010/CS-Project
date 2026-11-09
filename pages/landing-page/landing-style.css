@@ -764,3 +764,48 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 4px #ffffff;
 }
+
+@media (max-width: 760px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .workspace-wrapper {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .flank-column,
+    .central-dashboard-mock,
+    .mock-internal-body,
+    .internal-grid-content,
+    .charts-stack,
+    .efficiency-stack {
+        min-width: 0;
+    }
+
+    .flank-column {
+        margin-top: 0;
+    }
+
+    .central-dashboard-mock {
+        width: 100%;
+        height: auto;
+        min-height: 520px;
+    }
+
+    .mock-internal-body {
+        padding: 1rem;
+    }
+
+    .internal-top-bar,
+    .panel-meta-status {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .internal-grid-content {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+    }
+}

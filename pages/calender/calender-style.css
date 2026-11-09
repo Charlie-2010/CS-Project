@@ -295,6 +295,41 @@ body {
     overflow: hidden;
 }
 
+.grid-day {
+    width: 100%;
+    min-width: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+}
+
+.event-tag-list { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+.event-tag {
+    overflow: hidden;
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.calendar-empty-state {
+    padding: 20px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.5;
+}
+.event-form-error { min-height: 1.2em; color: #f87171; }
+.timeline-card__title { overflow-wrap: anywhere; }
+.filter-btn[aria-pressed="true"] { font-weight: 700; }
+
+@media (max-width: 760px) {
+    body { overflow: auto; }
+    .calendar-header__controls { flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .workspace-layout { min-height: 0; }
+    .month-view-card { min-height: 560px; padding: 12px; }
+    .grid-day { padding: 4px; font-size: 12px; }
+    .event-tag { font-size: 10px; }
+}
+
 .day-number {
     font-size: 12px;
     color: var(--text-muted);
@@ -471,7 +506,8 @@ body {
     color: #ef5350;
 }
 
-.status-mid {
+.status-mid,
+.status-medium {
     background-color: rgba(255, 152, 0, 0.12);
     color: #ffa726;
 }
@@ -479,6 +515,11 @@ body {
 .status-low {
     background-color: rgba(76, 175, 80, 0.12);
     color: #81c784;
+}
+
+.status-urgent {
+    background-color: rgba(185, 28, 28, 0.18);
+    color: #fca5a5;
 }
 
 .status-icon {

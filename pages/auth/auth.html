@@ -6,6 +6,7 @@
     <title>Authentication - CogniPlan</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="auth-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 <body>
     <div class="auth-container">
@@ -20,7 +21,7 @@
             <h2 class="auth-title">Welcome Back</h2>
             <p class="auth-subtitle">Sign in to sync your gamified focus metrics</p>
             
-            <form class="auth-form" onsubmit="executeSignIn(event)">
+            <form class="auth-form" onsubmit="executeSignIn(event)" novalidate>
                 <div class="input-container">
                     <label for="login-user">Username</label>
                     <input type="text" id="login-user" required placeholder="Enter your username" autocomplete="off">
@@ -30,11 +31,12 @@
                     <input type="password" id="login-pass" required placeholder="Enter password text">
                 </div>
                 <button type="submit" class="btn-gradient">Sign In</button>
+                <p class="form-feedback" role="status" aria-live="polite"></p>
             </form>
 
             <div class="auth-links">
-                <p>New user? <span class="link-accent" onclick="toggleAuthView('card-signup')">Create Account</span></p>
-                <p><span class="link-muted" onclick="toggleAuthView('card-reset')">Forgot Password?</span></p>
+                <p>New user? <button type="button" class="link-accent" onclick="toggleAuthView('card-signup')">Create Account</button></p>
+                <p><button type="button" class="link-muted" onclick="toggleAuthView('card-reset')">Forgot Password?</button></p>
             </div>
         </div>
 
@@ -48,14 +50,14 @@
             <h2 class="auth-title">Create Account</h2>
             <p class="auth-subtitle">Initialize your workspace profile metrics</p>
             
-            <form class="auth-form" onsubmit="executeSignUp(event)">
+            <form class="auth-form" onsubmit="executeSignUp(event)" novalidate>
                 <div class="input-container">
                     <label for="reg-name">Full Name</label>
                     <input type="text" id="reg-name" required placeholder="Your full name">
                 </div>
                 <div class="input-container">
-                    <label for="reg-user">Username / Email</label>
-                    <input type="text" id="reg-user" required placeholder="Choose identifier account">
+                    <label for="reg-user">Email</label>
+                    <input type="email" id="reg-user" required placeholder="name@example.com" autocomplete="email">
                 </div>
                 <div class="input-container">
                     <label for="reg-pass">Password</label>
@@ -66,10 +68,11 @@
                     <input type="password" id="reg-confirm" required placeholder="Repeat secure password key">
                 </div>
                 <button type="submit" class="btn-gradient">Sign Up</button>
+                <p class="form-feedback" role="status" aria-live="polite"></p>
             </form>
 
             <div class="auth-links">
-                <p>Already have an account? <span class="link-accent" onclick="toggleAuthView('card-signin')">Sign In</span></p>
+                <p>Already have an account? <button type="button" class="link-accent" onclick="toggleAuthView('card-signin')">Sign In</button></p>
             </div>
         </div>
 
@@ -105,19 +108,21 @@
             <h2 class="auth-title">Reset Password</h2>
             <p class="auth-subtitle">Verify address parameters to update your secure access vector</p>
             
-            <form class="auth-form" onsubmit="executeReset(event)">
+            <form class="auth-form" onsubmit="executeReset(event)" novalidate>
                 <div class="input-container">
                     <label for="reset-mail">Email Address</label>
                     <input type="email" id="reset-mail" required placeholder="account@example.com">
                 </div>
                 <button type="submit" class="btn-gradient">Send Recovery Code</button>
+                <p class="form-feedback" role="status" aria-live="polite"></p>
             </form>
 
             <div class="auth-links">
-                <p><span class="link-accent" onclick="toggleAuthView('card-signin')">Return to Sign In</span></p>
+                <p><button type="button" class="link-accent" onclick="toggleAuthView('card-signin')">Return to Sign In</button></p>
             </div>
         </div>
     </div>
+    <script src="../shared-ui.js"></script>
     <script src="auth-script.js"></script>
 </body>
 </html>

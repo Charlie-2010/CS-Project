@@ -7,6 +7,7 @@
     <title>Digital Task Planner - Settings</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="settings-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 
 <body>
@@ -124,9 +125,9 @@
                             <h3>Theme</h3>
                         </div>
                         <div class="segmented-control">
-                            <button class="segment-btn active">Dark</button>
-                            <button class="segment-btn">Light</button>
-                            <button class="segment-btn">System</button>
+                            <button type="button" class="segment-btn active" data-theme="dark">Dark</button>
+                            <button type="button" class="segment-btn" data-theme="light">Light</button>
+                            <button type="button" class="segment-btn" data-theme="system">System</button>
                         </div>
                     </div>
 
@@ -134,7 +135,7 @@
                         <div class="row-info">
                             <h3>Language</h3>
                         </div>
-                        <select class="dropdown-control">
+                        <select class="dropdown-control" id="language-preference">
                             <option>English</option>
                             <option>Spanish</option>
                             <option>French</option>
@@ -145,7 +146,7 @@
                         <div class="row-info">
                             <h3>Font Size</h3>
                         </div>
-                        <select class="dropdown-control">
+                        <select class="dropdown-control" id="font-size-preference">
                             <option>Medium</option>
                             <option>Small</option>
                             <option>Large</option>
@@ -227,11 +228,11 @@
                             <h3>Accent Color</h3>
                         </div>
                         <div class="color-palette">
-                            <div class="color-dot dot-cyan active" data-color="cyan"></div>
-                            <div class="color-dot dot-purple" data-color="purple"></div>
-                            <div class="color-dot dot-pink" data-color="pink"></div>
-                            <div class="color-dot dot-orange" data-color="orange"></div>
-                            <div class="color-dot dot-green" data-color="green"></div>
+                            <button type="button" class="color-dot dot-cyan active" data-color="cyan" aria-label="Cyan accent"></button>
+                            <button type="button" class="color-dot dot-purple" data-color="purple" aria-label="Purple accent"></button>
+                            <button type="button" class="color-dot dot-pink" data-color="pink" aria-label="Pink accent"></button>
+                            <button type="button" class="color-dot dot-orange" data-color="orange" aria-label="Orange accent"></button>
+                            <button type="button" class="color-dot dot-green" data-color="green" aria-label="Green accent"></button>
                         </div>
                     </div>
                 </div>
@@ -325,6 +326,7 @@
         </main>
     </div>
 
+    <script src="../shared-ui.js"></script>
     <script src="settings-script.js"></script>
 </body>
 

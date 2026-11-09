@@ -1,0 +1,416 @@
+.app-toast-region {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 3000;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 32px));
+}
+
+.app-toast {
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-left: 4px solid #06b6d4;
+  border-radius: 10px;
+  background: #101827;
+  color: #f8fafc;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+  font: 500 14px/1.45 system-ui, sans-serif;
+}
+
+.app-toast--error {
+  border-left-color: #ef4444;
+}
+
+.app-toast--success {
+  border-left-color: #10b981;
+}
+
+:where(button, a, input, select, textarea, [role="button"], .filter-opt):focus-visible {
+  outline: 3px solid #22d3ee;
+  outline-offset: 3px;
+}
+
+.sidebar-nav__toggle[role="button"] {
+  cursor: pointer;
+}
+
+.app-account-menu-host {
+  position: relative;
+}
+
+.app-account-menu {
+  position: absolute;
+  z-index: 2100;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  padding: 6px;
+  border: 1px solid rgba(148, 163, 184, .35);
+  border-radius: 10px;
+  background: #101827;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .28);
+}
+
+.app-account-menu[hidden] {
+  display: none;
+}
+
+.app-account-menu__item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #f8fafc;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.app-account-menu__item:hover {
+  background: rgba(148, 163, 184, .14);
+}
+
+.app-account-menu__item--logout {
+  color: #fca5a5;
+}
+
+.profile-container .sidebar-nav.expanded {
+  width: 220px;
+}
+
+.profile-container .sidebar-nav.expanded .nav-label {
+  display: inline;
+  opacity: 1;
+  visibility: visible;
+}
+
+.profile-container .sidebar-nav.expanded .menu-cluster__link {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+body[data-theme="light"] {
+  background: #f3f6fb !important;
+  color: #172033 !important;
+}
+
+body[data-theme="light"] :is(.sidebar-nav, .kanban-col, .kanban-column, .task-card,
+  .profile-card, .settings-card, .analytics-card, .insight-card, .chat-conversation-viewport,
+  .contact-list-panel, .day-timeline-panel, .kpi-card, .timeline-card, .calendar-grid-wrapper) {
+  background-color: #fff !important;
+  color: #172033 !important;
+  border-color: #dce4ef !important;
+}
+
+body[data-theme="light"] :is(.task-card__heading, .card-heading, .column-title, .kanban-col__title,
+  .section-title, .card-title, .insight-title, .chat-header-name, .timeline-card__title,
+  .contact-name, .form-label, .settings-row h3, .profile-title, .report-title) {
+  color: #172033 !important;
+}
+
+body[data-theme="light"] :is(.kpi-label, .metric-label, .metric-stats, .progress-label, .filter-label,
+  .contact-preview, .contact-preview-active, .contact-time, .contact-time-active, .meta-line,
+  .time-range, .chat-empty-state, .calendar-empty-state) {
+  color: #475569 !important;
+}
+
+body[data-theme="light"] :is(.chat-messages-container, .cards-list-container, .kanban-col__cards,
+  .calendar-grid-body, .timeline-scroll-container) {
+  background-color: #f7f9fc !important;
+}
+
+body.compact-mode :is(.task-card, .kanban-card, .kanban-col, .kanban-column, .settings-row) {
+  padding-top: .65rem !important;
+  padding-bottom: .65rem !important;
+}
+
+body[data-theme="light"] :is(.contact-list, .chat-messages-container, .workspace-header, .main-wrapper,
+  .primary-workspace, .tasks-workspace, .report-workspace, .settings-container, .tasks-container,
+  .calendar-container, .message-container, .dashboard-container, .reports-container) {
+  background-color: #f3f6fb !important;
+  color: #172033 !important;
+}
+
+body[data-theme="light"] :is(.chat-input-field, .form-input, .dropdown-control, .task-modal input,
+  .task-modal textarea, .task-modal select) {
+  background-color: #fff !important;
+  color: #172033 !important;
+  border-color: #cbd5e1 !important;
+}
+
+body[data-theme="light"] .app-toast {
+  background: #fff;
+  color: #172033;
+}
+
+body[data-theme="light"] .menu-cluster__link.active,
+body[data-theme="light"] .menu-cluster__link:hover {
+  color: #0369a1 !important;
+  background-color: #e0f2fe !important;
+}
+
+body[data-theme="light"] :is(.segment-btn.active, .filter-opt.active) {
+  color: #172033 !important;
+  background-color: #e2e8f0 !important;
+}
+
+body[data-theme="light"] .color-dot.active {
+  border-color: #172033 !important;
+}
+
+html[data-accent="cyan"] {
+  --app-accent: #06b6d4;
+}
+
+html[data-accent="purple"] {
+  --app-accent: #9c27b0;
+}
+
+html[data-accent="pink"] {
+  --app-accent: #ec4899;
+}
+
+html[data-accent="orange"] {
+  --app-accent: #f97316;
+}
+
+html[data-accent="green"] {
+  --app-accent: #10b981;
+}
+
+html[data-accent] :is(.btn-primary, .btn-update-profile, .submit-btn, .btn-send) {
+  border-color: var(--app-accent) !important;
+  background-color: var(--app-accent) !important;
+}
+
+body[data-font-size="small"] {
+  font-size: 14px;
+}
+
+body[data-font-size="large"] {
+  font-size: 18px;
+}
+
+html[data-accent] :is(.menu-cluster__link.active, .menu-cluster__link:hover, .filter-btn.active, .filter-opt.active) {
+  color: var(--app-accent) !important;
+}
+
+@media (max-width: 760px) {
+  body {
+    width: 100%;
+    min-width: 0;
+    height: auto !important;
+    overflow: auto !important;
+  }
+
+  :is(.dashboard-container, .tasks-container, .calendar-container, .reports-container,
+    .settings-container, .messages-container, .message-container, .profile-container) {
+    width: 100% !important;
+    min-height: 100vh;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  :is(.primary-workspace, .main-wrapper, .report-workspace, .tasks-workspace, .settings-workspace) {
+    width: calc(100% - 60px) !important;
+    min-width: 0 !important;
+    margin-left: 60px !important;
+    padding: 18px !important;
+    box-sizing: border-box;
+    overflow: visible !important;
+  }
+
+  :is(.analytics-grid, .insights-grid, .profile-workspace-grid, .settings-grid, .workspace-layout) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :is(.kanban-grid, .kanban-board-grid, .calendar-grid-body) {
+    overflow-x: auto;
+  }
+
+  .kpi-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow: visible !important;
+  }
+
+  .kpi-card {
+    min-width: 0;
+  }
+
+  .analytics-grid {
+    flex-direction: column !important;
+  }
+
+  .insights-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+  }
+
+  .insight-card {
+    min-width: 0;
+  }
+
+  .chart-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    min-width: 500px;
+  }
+
+  .kanban-grid {
+    grid-template-columns: repeat(4, minmax(260px, 85vw)) !important;
+  }
+
+  .kanban-board-grid {
+    display: flex !important;
+    flex-direction: row;
+  }
+
+  .kanban-column {
+    width: min(320px, 82vw) !important;
+  }
+
+  .tasks-workspace {
+    height: auto !important;
+    min-height: 100vh;
+  }
+
+  .dashboard-container>.main-wrapper {
+    width: calc(100% - 70px) !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .profile-container>.main-wrapper {
+    width: calc(100% - 70px) !important;
+    margin-left: 0 !important;
+  }
+
+  .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .primary-workspace {
+    width: auto !important;
+    margin-left: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .message-container {
+    height: auto !important;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .workspace-body {
+    height: auto !important;
+    overflow: visible !important;
+    flex-direction: column;
+  }
+
+  .contact-list {
+    width: 100% !important;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .chat-conversation-viewport {
+    min-height: 55vh;
+  }
+
+  .calendar-container>.main-wrapper {
+    height: auto !important;
+  }
+
+  .settings-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .segmented-control {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .segment-btn {
+    flex: 1;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .bottom-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .action-btns {
+    flex-wrap: wrap;
+  }
+
+  .calendar-grid-body {
+    grid-template-rows: none !important;
+    grid-auto-rows: minmax(68px, auto);
+  }
+
+  .grid-day {
+    min-height: 68px;
+  }
+
+  :is(.report-header, .profile-header, .tasks-header, .calendar-header, .chat-header-bar) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .chat-input-bar {
+    position: sticky;
+    bottom: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .calendar-header__controls {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start !important;
+  }
+
+  .filter-options {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .message-container>.main-wrapper {
+    width: calc(100% - 60px);
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

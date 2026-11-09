@@ -1,87 +1,135 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Theme selection logic
-    const themeButtons = document.querySelectorAll('.segmented-control .segment-btn');
-    themeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            themeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            showUnsavedChanges();
-        });
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  const storageKey = "cogniplan.preferences";
+  const themeButtons = [...document.querySelectorAll(".segment-btn")];
+  const colorButtons = [...document.querySelectorAll(".color-dot")];
+  const statusText = document.getElementById("status-text");
+  const statusDot = document.querySelector(".status-dot");
+  const controls = [...document.querySelectorAll(".dropdown-control, .switch input")];
+  const defaults = {
+    theme: "dark",
+    accent: "cyan",
+    language: "English",
+    fontSize: "Medium",
+    taskReminders: true,
+    weeklySummary: true,
+    achievementAlerts: false,
+    compactMode: false,
+    requirePassword: false,
+    biometricLogin: true
+  };
+  let preferences = { ...defaults };
+  let savedSnapshot = "";
 
-    // Color palette selection logic
-    const colorDots = document.querySelectorAll('.color-palette .color-dot');
-    colorDots.forEach(dot => {
-        dot.addEventListener('click', () => {
-            colorDots.forEach(d => d.classList.remove('active'));
-            dot.classList.add('active');
+  function collectPreferences() {
+    return {
+      theme: document.querySelector(".segment-btn.active")?.dataset.theme || "dark",
+      accent: document.querySelector(".color-dot.active")?.dataset.color || "cyan",
+      language: document.getElementById("language-preference").value,
+      fontSize: document.getElementById("font-size-preference").value,
+      taskReminders: document.getElementById("task-reminders").checked,
+      weeklySummary: document.getElementById("weekly-summary").checked,
+      achievementAlerts: document.getElementById("achievement-alerts").checked,
+      compactMode: document.getElementById("compact-mode").checked,
+      requirePassword: document.getElementById("require-password").checked,
+      biometricLogin: document.getElementById("biometric-login").checked
+    };
+  }
 
-            // Map colors dynamically if variable handling is needed
-            const selectedColor = dot.getAttribute('data-color');
-            showUnsavedChanges();
-        });
-    });
+  function renderPreferences(values) {
+    themeButtons.forEach(button => button.classList.toggle("active", button.dataset.theme === values.theme));
+    colorButtons.forEach(button => button.classList.toggle("active", button.dataset.color === values.accent));
+    document.getElementById("language-preference").value = values.language;
+    document.getElementById("font-size-preference").value = values.fontSize;
+    document.getElementById("task-reminders").checked = values.taskReminders;
+    document.getElementById("weekly-summary").checked = values.weeklySummary;
+    document.getElementById("achievement-alerts").checked = values.achievementAlerts;
+    document.getElementById("compact-mode").checked = values.compactMode;
+    document.getElementById("require-password").checked = values.requirePassword;
+    document.getElementById("biometric-login").checked = values.biometricLogin;
+    applyPreferences(values);
+  }
 
-    // Sidebar Toggle
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('expanded');
-        });
+  function applyPreferences(values) {
+    const theme = values.theme === "system"
+      ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+      : values.theme;
+    document.body.dataset.theme = theme;
+    document.body.classList.toggle("compact-mode", values.compactMode);
+    document.body.dataset.fontSize = values.fontSize.toLowerCase();
+    document.documentElement.dataset.accent = values.accent;
+    const colors = { cyan: "#00bcd4", purple: "#9c27b0", pink: "#ec4899", orange: "#f97316", green: "#10b981" };
+    document.documentElement.style.setProperty("--app-accent", colors[values.accent] || colors.cyan);
+  }
 
-        document.addEventListener('click', (event) => {
-            const isClickInsideSidebar = sidebar.contains(event.target);
-            if (!isClickInsideSidebar && sidebar.classList.contains('expanded')) {
-                sidebar.classList.remove('expanded');
-            }
-        });
+  function setStatus(message, kind = "saved") {
+    statusText.textContent = message;
+    statusDot.style.backgroundColor = kind === "error" ? "#ef4444" : kind === "dirty" ? "#f59e0b" : "#10b981";
+    statusDot.style.boxShadow = `0 0 8px ${kind === "error" ? "#ef4444" : kind === "dirty" ? "#f59e0b" : "#10b981"}`;
+  }
+
+  function markDirty() {
+    const unchanged = JSON.stringify(collectPreferences()) === savedSnapshot;
+    setStatus(unchanged ? "All changes saved" : "Unsaved changes", unchanged ? "saved" : "dirty");
+  }
+
+  function savePreferences() {
+    preferences = collectPreferences();
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+      savedSnapshot = JSON.stringify(preferences);
+      applyPreferences(preferences);
+      setStatus("All changes saved");
+      window.AppUI.toast("Preferences saved on this device.", "success");
+    } catch (error) {
+      console.error("Could not save preferences.", error);
+      setStatus("Could not save preferences", "error");
+      window.AppUI.toast("Preferences could not be saved. Check browser storage permissions.", "error");
     }
+  }
 
-    // Dropdowns and checkbox toggle change listeners
-    const controls = document.querySelectorAll('.dropdown-control, .switch input');
-    controls.forEach(control => {
-        control.addEventListener('change', () => {
-            showUnsavedChanges();
-        });
-    });
-
-    // Footer actions
-    const saveBtn = document.getElementById('save-btn');
-    const resetBtn = document.getElementById('reset-btn');
-    const statusText = document.getElementById('status-text');
-    const statusDot = document.querySelector('.status-dot');
-
-    saveBtn.addEventListener('click', () => {
-        statusText.textContent = 'All changes saved';
-        statusDot.style.backgroundColor = '#10b981';
-        statusDot.style.boxShadow = '0 0 8px #10b981';
-    });
-
-    resetBtn.addEventListener('click', () => {
-        // Reset defaults
-        document.getElementById('task-reminders').checked = true;
-        document.getElementById('weekly-summary').checked = true;
-        document.getElementById('achievement-alerts').checked = false;
-        document.getElementById('compact-mode').checked = false;
-        document.getElementById('require-password').checked = false;
-        document.getElementById('biometric-login').checked = true;
-
-        themeButtons.forEach(btn => btn.classList.remove('active'));
-        themeButtons[0].classList.add('active'); // Dark
-
-        colorDots.forEach(d => d.classList.remove('active'));
-        colorDots[0].classList.add('active'); // Cyan
-
-        statusText.textContent = 'All changes saved';
-        statusDot.style.backgroundColor = '#10b981';
-        statusDot.style.boxShadow = '0 0 8px #10b981';
-    });
-
-    function showUnsavedChanges() {
-        statusText.textContent = 'Unsaved changes...';
-        statusDot.style.backgroundColor = '#ff9800';
-        statusDot.style.boxShadow = '0 0 8px #ff9800';
+  try {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      preferences = { ...defaults, ...parsed };
     }
+  } catch (error) {
+    console.error("Could not read saved preferences.", error);
+    setStatus("Saved preferences could not be loaded", "error");
+    window.AppUI.toast("Saved preferences could not be loaded.", "error");
+  }
+  renderPreferences(preferences);
+  savedSnapshot = JSON.stringify(collectPreferences());
+
+  themeButtons.forEach(button => button.addEventListener("click", () => {
+    themeButtons.forEach(item => item.classList.toggle("active", item === button));
+    applyPreferences(collectPreferences());
+    markDirty();
+  }));
+  colorButtons.forEach(button => button.addEventListener("click", () => {
+    colorButtons.forEach(item => item.classList.toggle("active", item === button));
+    applyPreferences(collectPreferences());
+    markDirty();
+  }));
+  controls.forEach(control => control.addEventListener("change", () => {
+    applyPreferences(collectPreferences());
+    markDirty();
+  }));
+  document.getElementById("save-btn").addEventListener("click", savePreferences);
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    preferences = { ...defaults };
+    renderPreferences(preferences);
+    savePreferences();
+  });
+  window.addEventListener("beforeunload", event => {
+    if (JSON.stringify(collectPreferences()) !== savedSnapshot) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  });
+
+  const systemTheme = window.matchMedia("(prefers-color-scheme: light)");
+  systemTheme.addEventListener?.("change", () => {
+    if (collectPreferences().theme === "system") applyPreferences(collectPreferences());
+  });
 });

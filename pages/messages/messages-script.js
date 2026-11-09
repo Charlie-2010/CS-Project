@@ -1,147 +1,154 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // --- DOM Elements ---
-    const contactItems = document.querySelectorAll(".contact-item");
-    const messagesContainer = document.querySelector(".chat-messages-container");
-    const inputField = document.querySelector(".chat-input-field");
-    const micButton = document.querySelector(".btn-mic");
-    const attachButton = document.querySelector(".btn-attach");
-    const chatHeaderName = document.querySelector(".chat-header-name");
-    
-    // Add this helper near the top of your chat.js file under DOM Elements section
-    const sidebarLinks = document.querySelectorAll(".menu-cluster__link");
-    sidebarLinks.forEach(link => {
-        if (link.getAttribute("href") === "messages.html") {
-            sidebarLinks.forEach(l => l.classList.remove("active"));
-            link.classList.add("active");
-        }
+  const contacts = [...document.querySelectorAll(".contact-item")];
+  const messagesContainer = document.querySelector(".chat-messages-container");
+  const input = document.querySelector(".chat-input-field");
+  const sendButton = document.querySelector(".btn-send");
+  const search = document.querySelector(".search-bar__input");
+  const headerName = document.querySelector(".chat-header-name");
+  const initialData = [
+    [{ text: "Hello, let me know if you are available today.", sent: false, time: "09:15" }, { text: "I can review the sprint plan this afternoon.", sent: true, time: "09:22" }],
+    [{ text: "Please check the document I sent you earlier.", sent: false, time: "10:05" }],
+    [{ text: "We need to schedule a meeting for tomorrow.", sent: false, time: "10:55" }],
+    []
+  ];
+  const threads = new Map();
+  contacts.forEach((contact, index) => {
+    const key = `contact-${index}`;
+    contact.dataset.contact = key;
+    threads.set(key, initialData[index] || []);
+    contact.setAttribute("role", "button");
+    contact.setAttribute("tabindex", "0");
+    contact.setAttribute("aria-label", `Open conversation with ${contact.querySelector(".contact-name").textContent.trim()}`);
+  });
+  let activeContact = contacts.find(contact => contact.classList.contains("active")) || contacts[0];
+
+  function timeNow() {
+    return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+
+  function renderThread() {
+    if (!activeContact) return;
+    const name = activeContact.querySelector(".contact-name").textContent.trim();
+    headerName.textContent = `${name} - Operator`;
+    const thread = threads.get(activeContact.dataset.contact) || [];
+    messagesContainer.replaceChildren();
+    if (!thread.length) {
+      const empty = document.createElement("p");
+      empty.className = "chat-empty-state";
+      empty.textContent = `No messages with ${name} yet. Start the conversation below.`;
+      messagesContainer.appendChild(empty);
+      return;
+    }
+
+    thread.forEach(message => {
+      const bubble = document.createElement("div");
+      bubble.className = `message-bubble message-bubble--${message.sent ? "sent" : "received"}`;
+      if (!message.sent) {
+        const avatar = document.createElement("div");
+        avatar.className = "message-avatar";
+        bubble.appendChild(avatar);
+      }
+      const wrapper = document.createElement("div");
+      wrapper.className = "message-content-wrapper";
+      const text = document.createElement("div");
+      text.className = "message-text";
+      text.textContent = message.text;
+      const timestamp = document.createElement("time");
+      timestamp.className = "message-timestamp";
+      timestamp.textContent = message.time;
+      wrapper.append(text, timestamp);
+      bubble.appendChild(wrapper);
+      messagesContainer.appendChild(bubble);
     });
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-    // === Profile Page button Functionality ===
-    const profilebutton=document.querySelector('#profile-pill');
-    if (profilebutton) {
-        profilebutton.addEventListener('click', () =>{
-            window.location.href = '../profile/profile.html';
-        });
-    }
-    
-    // Sidebar Toggle
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('expanded');
-        });
+  function updateContactPreview(contact, message) {
+    if (!contact) return;
+    const preview = contact.querySelector(".contact-preview, .contact-preview-active");
+    if (preview) preview.textContent = message;
+    const time = contact.querySelector(".contact-time, .contact-time-active");
+    if (time) time.textContent = timeNow();
+  }
 
-        document.addEventListener('click', (event) => {
-            const isClickInsideSidebar = sidebar.contains(event.target);
-            if (!isClickInsideSidebar && sidebar.classList.contains('expanded')) {
-                sidebar.classList.remove('expanded');
-            }
-        });
-    }
-
-    // Initialize viewport scroll position to the bottom of the feed
-    scrollToBottom();
-
-    // ==========================================
-    // 1. Thread Switching Functionality
-    // ==========================================
-    contactItems.forEach(item => {
-        item.addEventListener("click", () => {
-            // Remove 'active' state highlighting from the previous selection
-            contactItems.forEach(el => el.classList.remove("active"));
-
-            // Assign active highlighting to the selected contact card
-            item.classList.add("active");
-
-            // Update target chat room details inside the right workspace window
-            const selectedName = item.querySelector(".contact-name").textContent;
-            chatHeaderName.textContent = `${selectedName} - Operator`;
-
-            // Clear layout chat screen to simulate entering a clean workspace thread
-            messagesContainer.innerHTML = `
-        <div class="message-bubble message-bubble--received">
-          <div class="message-avatar"></div>
-          <div class="message-content-wrapper">
-            <div class="message-text">Welcome to the secure encrypted session room for <strong>${selectedName}</strong>. How can I help you today?</div>
-          </div>
-        </div>
-      `;
-            scrollToBottom();
-        });
+  function selectContact(contact) {
+    activeContact = contact;
+    contacts.forEach(item => {
+      item.classList.toggle("active", item === contact);
+      item.setAttribute("aria-pressed", String(item === contact));
     });
+    renderThread();
+  }
 
-    // ==========================================
-    // 2. Message Dispatching System
-    // ==========================================
-    function handleSendMessage() {
-        const textContent = inputField.value.trim();
-        if (!textContent) return; // Disallow executing on empty entries
-
-        // Capture standard timestamp
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        // Generate output HTML payload structure for Sent message bubbles
-        const sentBubble = document.createElement("div");
-        sentBubble.className = "message-bubble message-bubble--sent";
-        sentBubble.innerHTML = `
-      <div class="message-content-wrapper">
-        <div class="message-text">${escapeHTML(textContent)}</div>
-        <div class="message-timestamp">${timeString}</div>
-      </div>
-    `;
-
-        // Append to viewport list panel
-        messagesContainer.appendChild(sentBubble);
-        inputField.value = ""; // Reset entry box layout tracking cleanly
-        scrollToBottom();
-
-        // Trigger an automated responsive feedback response to keep interface engaging
-        simulateOperatorResponse();
-    }
-
-    // Bind Enter keypress configuration to the primary layout text field
-    inputField.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            handleSendMessage();
-        }
+  contacts.forEach(contact => {
+    contact.addEventListener("click", () => selectContact(contact));
+    contact.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectContact(contact);
+      }
     });
+  });
 
-    // ==========================================
-    // 3. UI Utility Hook Methods
-    // ==========================================
-    function scrollToBottom() {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text || !activeContact) {
+      if (!text) input.focus();
+      return;
     }
+    const key = activeContact.dataset.contact;
+    const thread = threads.get(key);
+    const message = { text, sent: true, time: timeNow() };
+    thread.push(message);
+    updateContactPreview(activeContact, text);
+    input.value = "";
+    renderThread();
+    window.setTimeout(() => {
+      const response = { text: "Thanks for the update. I’ll take a look and follow up here.", sent: false, time: timeNow() };
+      thread.push(response);
+      if (activeContact?.dataset.contact === key) renderThread();
+      const contact = contacts.find(item => item.dataset.contact === key);
+      updateContactPreview(contact, response.text);
+    }, 850);
+  }
 
-    // Prevent Cross-Site Scripting injections via user chat strings
-    function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g,
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
     }
-
-    // ==========================================
-    // 4. Simulated Automated Responses
-    // ==========================================
-    function simulateOperatorResponse() {
-        setTimeout(() => {
-            const receivedBubble = document.createElement("div");
-            receivedBubble.className = "message-bubble message-bubble--received";
-            receivedBubble.innerHTML = `
-        <div class="message-avatar"></div>
-        <div class="message-content-wrapper">
-          <div class="message-text">Acknowledged. The system has updated the request parameters for this task thread.</div>
-        </div>
-      `;
-            messagesContainer.appendChild(receivedBubble);
-            scrollToBottom();
-        }, 1200); // 1.2 second response delay
+  });
+  sendButton.addEventListener("click", sendMessage);
+  search.addEventListener("input", () => {
+    const query = search.value.trim().toLocaleLowerCase();
+    contacts.forEach(contact => {
+      const name = contact.querySelector(".contact-name").textContent.toLocaleLowerCase();
+      const preview = contact.querySelector(".contact-preview, .contact-preview-active")?.textContent.toLocaleLowerCase() || "";
+      contact.hidden = !name.includes(query) && !preview.includes(query);
+    });
+    const noMatches = contacts.every(contact => contact.hidden);
+    let empty = document.querySelector(".contacts-empty-state");
+    if (noMatches && !empty) {
+      empty = document.createElement("p");
+      empty.className = "contacts-empty-state";
+      empty.textContent = "No conversations match your search.";
+      document.querySelector(".contacts-container").appendChild(empty);
+    } else if (!noMatches) {
+      empty?.remove();
     }
+  });
 
-    // Optional Button Interactive Micro-feedback Triggers
-    micButton.addEventListener("click", () => alert("Microphone capture session starting..."));
-    attachButton.addEventListener("click", () => alert("File attachment upload prompt loading..."));
+  document.querySelector(".btn-mic").addEventListener("click", () => {
+    window.AppUI.toast("Voice messages are not available in this demo.", "info");
+  });
+  document.querySelector(".btn-attach").addEventListener("click", () => {
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.addEventListener("change", () => {
+      if (picker.files?.[0]) window.AppUI.toast(`${picker.files[0].name} selected. Upload is not connected.`, "info");
+    });
+    picker.click();
+  });
+
+  selectContact(activeContact);
 });

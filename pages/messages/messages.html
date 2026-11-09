@@ -6,6 +6,7 @@
     <title>Messages</title>
     <link rel="icon" type="image/png" href="../../assets/Logo(1).png">
     <link rel="stylesheet" href="messages-style.css">
+    <link rel="stylesheet" href="../shared-ui.css">
 </head>
 <body>
     <div class="message-container">
@@ -56,7 +57,7 @@
             <header class="workspace-header">
                 <div class="search-bar">
                     <span class="search-bar__icon">🔍</span>
-                    <input type="text" class="search-bar__input" placeholder="Search...">
+                    <input type="search" class="search-bar__input" placeholder="Search contacts..." aria-label="Search contacts">
                 </div>
                 <div class="workspace-header__actions">
                     <div class="action-trigger" id="profile-pill">
@@ -211,10 +212,11 @@
                     <!-- Bottom Chat Input Bar Element Area Footer -->
                     <div class="chat-input-bar">
                         <div class="chat-input-wrapper">
-                            <input type="text" class="chat-input-field" placeholder="Type your message here...">
+                            <input type="text" class="chat-input-field" placeholder="Type your message here..." aria-label="Type a message" maxlength="1000">
                             <div class="chat-input-actions">
-                                <button class="chat-action-btn btn-mic">🎙️</button>
-                                <button class="chat-action-btn btn-attach">📎</button>
+                                <button type="button" class="chat-action-btn btn-mic" aria-label="Voice messages unavailable">🎙️</button>
+                                <button type="button" class="chat-action-btn btn-attach" aria-label="Choose attachment">📎</button>
+                                <button type="button" class="chat-action-btn btn-send" aria-label="Send message">Send</button>
                             </div>
                         </div>
                     </div>
@@ -225,6 +227,7 @@
     </div>
 
     <!--Attached Javascript Script File-->
+    <script src="../shared-ui.js"></script>
     <script src="messages-script.js"></script>
 </body>
 </html>

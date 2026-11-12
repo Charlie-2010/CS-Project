@@ -5,20 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     date.setDate(date.getDate() - days);
     return date;
   };
-  const sampleTasks = [
-    { title: "Plan weekly priorities", date: dateOffset(1), status: "done", priority: "HIGH", category: "Engineering", hours: 2 },
-    { title: "Review interface flow", date: dateOffset(2), status: "done", priority: "MEDIUM", category: "UI/UX Design", hours: 1.5 },
-    { title: "Update API routes", date: dateOffset(3), status: "in-progress", priority: "URGENT", category: "Engineering", hours: 3 },
-    { title: "Check database migrations", date: dateOffset(4), status: "done", priority: "HIGH", category: "Database & DevOps", hours: 2.5 },
-    { title: "Write release notes", date: dateOffset(6), status: "done", priority: "LOW", category: "Growth & Launch", hours: 1 },
-    { title: "Review architecture notes", date: dateOffset(8), status: "in-progress", priority: "MEDIUM", category: "Architecture", hours: 2 },
-    { title: "Refine onboarding screens", date: dateOffset(11), status: "done", priority: "MEDIUM", category: "UI/UX Design", hours: 2 },
-    { title: "Configure build pipeline", date: dateOffset(14), status: "done", priority: "URGENT", category: "Database & DevOps", hours: 2 },
-    { title: "Schedule launch checklist", date: dateOffset(18), status: "in-progress", priority: "HIGH", category: "Growth & Launch", hours: 1.5 },
-    { title: "Complete focus review", date: dateOffset(22), status: "done", priority: "LOW", category: "Productivity & Habits", hours: 1 },
-    { title: "Update system diagrams", date: dateOffset(27), status: "done", priority: "MEDIUM", category: "Architecture", hours: 2 },
-    { title: "Review sprint backlog", date: dateOffset(35), status: "done", priority: "URGENT", category: "Engineering", hours: 2.5 }
-  ];
+  let sampleTasks = [];
   const categoryColors = {
     "Engineering": "#3b82f6",
     "UI/UX Design": "#a855f7",
@@ -169,5 +156,14 @@ document.addEventListener("DOMContentLoaded", () => {
       render(days);
     });
   });
+  window.CogniPlanAPI.get("/api/tasks").then(result => {
+    sampleTasks = (result.tasks || []).map(task => {
+      const dateValue = task.completed_at || task.created_at || new Date().toISOString();
+      return { title: task.title, date: new Date(String(dateValue).replace(" ", "T")),
+        status: task.status === "Done" ? "done" : "in-progress", priority: task.priority,
+        category: task.category || "Uncategorized", hours: Number(task.actual_minutes || 0) / 60 };
+    });
+    render(Number(document.querySelector(".filter-opt[data-days].active")?.dataset.days || 7));
+  }).catch(error => console.warn("Report tasks could not be loaded:", error.message));
   render(7);
 });

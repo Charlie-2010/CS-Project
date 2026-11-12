@@ -72,18 +72,18 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus(unchanged ? "All changes saved" : "Unsaved changes", unchanged ? "saved" : "dirty");
   }
 
-  function savePreferences() {
+  async function savePreferences() {
     preferences = collectPreferences();
     try {
+      await window.CogniPlanAPI.put("/api/preferences", {
+        theme_mode: preferences.theme, daily_task_goal: 0, widget_layout: preferences
+      });
       localStorage.setItem(storageKey, JSON.stringify(preferences));
-      savedSnapshot = JSON.stringify(preferences);
-      applyPreferences(preferences);
-      setStatus("All changes saved");
-      window.AppUI.toast("Preferences saved on this device.", "success");
+      savedSnapshot = JSON.stringify(preferences); applyPreferences(preferences);
+      setStatus("All changes saved"); window.AppUI.toast("Preferences saved to your account.", "success");
     } catch (error) {
-      console.error("Could not save preferences.", error);
-      setStatus("Could not save preferences", "error");
-      window.AppUI.toast("Preferences could not be saved. Check browser storage permissions.", "error");
+      console.error("Could not save preferences.", error); setStatus("Could not save preferences", "error");
+      window.AppUI.toast("Preferences could not be saved: " + error.message, "error");
     }
   }
 
@@ -100,6 +100,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   renderPreferences(preferences);
   savedSnapshot = JSON.stringify(collectPreferences());
+  window.CogniPlanAPI.get("/api/preferences").then(result => {
+    const remote = result.preferences?.widget_layout;
+    if (remote && typeof remote === "object") {
+      preferences = { ...defaults, ...remote }; renderPreferences(preferences);
+      savedSnapshot = JSON.stringify(collectPreferences());
+    }
+  }).catch(error => console.warn("Preferences could not be loaded from server:", error.message));
 
   themeButtons.forEach(button => button.addEventListener("click", () => {
     themeButtons.forEach(item => item.classList.toggle("active", item === button));

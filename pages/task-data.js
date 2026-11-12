@@ -50,8 +50,8 @@
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved === null) {
-        localStorage.setItem(storageKey, JSON.stringify(seedTasks));
-        return seedTasks.map(normalizeTask);
+        localStorage.setItem(storageKey, JSON.stringify([]));
+        return [];
       }
       const parsed = JSON.parse(saved);
       if (!Array.isArray(parsed)) throw new Error("Saved task data must be a list.");
@@ -70,8 +70,15 @@
       reportStorageError("Task data could not be saved on this device.", error);
       throw error;
     }
+    // Keep the existing synchronous UI model, while persisting the same changes to MySQL.
+    if (window.CogniPlanAPI && window.CogniPlanAPI.post) {
+      syncQueue = syncQueue.then(() => window.CogniPlanAPI.post("/api/tasks/sync", { tasks: normalized }))
+        .catch(error => { console.error("Cloud task sync failed:", error); window.AppUI?.toast("Task saved on this device, but cloud sync failed: " + error.message, "error"); });
+    }
     return normalized;
   }
+
+  let syncQueue = Promise.resolve();
 
   function getAll() {
     return readTasks();
@@ -115,4 +122,26 @@
     update,
     remove
   };
+
+  // Load this signed-in user's tasks from MySQL before the page's next render.
+  if (window.CogniPlanAPI) {
+    window.CogniPlanAPI.get("/api/tasks").then(result => {
+      const remote = (result.tasks || []).map(task => normalizeTask({
+        id: String(task.id), title: task.title, description: task.description || "",
+        category: task.category || "Uncategorized", priority: task.priority,
+        status: task.status, favorite: Boolean(task.is_starred)
+      }));
+      const current = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch { return []; } })();
+      const reloadKey = "cogniplan.tasks.hydrated." + location.pathname;
+      if (JSON.stringify(current) !== JSON.stringify(remote)) {
+        localStorage.setItem(storageKey, JSON.stringify(remote));
+        // Existing page scripts are synchronous; reload once so they render the fetched data.
+        if (!sessionStorage.getItem(reloadKey)) { sessionStorage.setItem(reloadKey, "1"); location.reload(); }
+      } else {
+        sessionStorage.removeItem(reloadKey);
+      }
+    }).catch(error => {
+      if (!String(error.message).includes("401")) console.warn("Could not load cloud tasks:", error.message);
+    });
+  }
 })();

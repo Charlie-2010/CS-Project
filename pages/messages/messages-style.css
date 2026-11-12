@@ -564,3 +564,11 @@ body {
   .chat-header-profile { min-width: 0; }
   .chat-header-name { overflow-wrap: anywhere; }
 }
+
+/* Native button reset for dynamically rendered database-backed contacts. */
+.contact-item {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}

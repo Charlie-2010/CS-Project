@@ -1,4 +1,16 @@
 (() => {
+  window.CogniPlanAPI = {
+    async request(url, options = {}) {
+      const response = await fetch(url, { credentials: "same-origin", headers: { "Content-Type": "application/json", ...(options.headers || {}) }, ...options });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
+      return payload;
+    },
+    get(url) { return this.request(url); },
+    post(url, data) { return this.request(url, { method: "POST", body: JSON.stringify(data) }); },
+    put(url, data) { return this.request(url, { method: "PUT", body: JSON.stringify(data) }); },
+    delete(url) { return this.request(url, { method: "DELETE" }); }
+  };
   const toastRegion = document.createElement("div");
   toastRegion.className = "app-toast-region";
   toastRegion.setAttribute("aria-live", "polite");
@@ -17,6 +29,13 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
+    const path = window.location.pathname;
+    const isPublicPage = path.includes("/pages/landing-page/") || path.includes("/pages/auth/");
+    if (!isPublicPage) {
+      window.CogniPlanAPI.get("/api/auth/me").then(result => {
+        if (!result.authenticated) window.location.replace("../auth/auth.html");
+      }).catch(() => window.location.replace("../auth/auth.html"));
+    }
     let themePreference = "dark";
     try {
       const preferences = JSON.parse(localStorage.getItem("cogniplan.preferences") || "{}");
@@ -121,7 +140,9 @@
       logoutAction.type = "button";
       logoutAction.setAttribute("role", "menuitem");
       logoutAction.textContent = "Log out";
-      logoutAction.addEventListener("click", () => {
+      logoutAction.addEventListener("click", async () => {
+        try { await window.CogniPlanAPI.post("/api/auth/logout", {}); }
+        catch (error) { console.error("Logout failed", error); }
         window.location.href = "../auth/auth.html";
       });
 

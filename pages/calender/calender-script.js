@@ -23,13 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dayName = new Intl.DateTimeFormat(undefined, { weekday: "long" });
   const fullDate = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" });
 
-  const events = [
-    { date: addDays(today, 0), title: "Review project milestones", start: "09:30", end: "10:30", priority: "HIGH", theme: "cyan" },
-    { date: addDays(today, 1), title: "Update database schema", start: "13:00", end: "14:00", priority: "MEDIUM", theme: "blue" },
-    { date: addDays(today, 3), title: "Prepare sprint notes", start: "11:00", end: "11:45", priority: "LOW", theme: "purple" },
-    { date: addDays(today, 8), title: "Review API integration", start: "15:00", end: "16:00", priority: "HIGH", theme: "cyan" },
-    { date: addDays(today, -3), title: "Plan weekly priorities", start: "10:00", end: "10:30", priority: "MEDIUM", theme: "blue" }
-  ];
+  const events = [];
   let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   let selectedDate = new Date(today);
   let activeFilter = "Weekly";
@@ -195,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape" && modal.classList.contains("active")) closeModal();
   });
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
     const title = document.getElementById("event-title").value.trim();
     const start = document.getElementById("event-start").value;
@@ -210,21 +204,32 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("event-end").focus();
       return;
     }
-    events.push({
-      date: new Date(selectedDate),
-      title,
-      start,
-      end,
-      priority: document.getElementById("event-priority").value,
-      theme: document.getElementById("event-theme").value
-    });
-    form.reset();
-    closeModal();
-    renderCalendar();
-    renderTimeline();
-    window.AppUI.toast("Event added to your temporary calendar.", "success");
+    try {
+      const startAt = `${dateKey(selectedDate)}T${start}:00`;
+      const endAt = `${dateKey(selectedDate)}T${end}:00`;
+      const saved = await window.CogniPlanAPI.post("/api/calendar/events", {
+        title, start_at: startAt, end_at: endAt, event_type: "PERSONAL"
+      });
+      events.push({ event_id: saved.event_id, date: new Date(selectedDate), title, start, end,
+        priority: document.getElementById("event-priority").value,
+        theme: document.getElementById("event-theme").value });
+      form.reset(); closeModal(); renderCalendar(); renderTimeline();
+      window.AppUI.toast("Event saved to your account.", "success");
+    } catch (error) {
+      formError.textContent = error.message || "Could not save event.";
+    }
   });
 
-  renderCalendar();
-  renderTimeline();
+  window.CogniPlanAPI.get("/api/calendar/events").then(result => {
+    (result.events || []).forEach(item => {
+      const startDate = new Date(item.start_at.replace(" ", "T"));
+      const endDate = item.end_at ? new Date(item.end_at.replace(" ", "T")) : startDate;
+      events.push({ event_id: item.event_id, date: startDate, title: item.title,
+        start: `${String(startDate.getHours()).padStart(2,"0")}:${String(startDate.getMinutes()).padStart(2,"0")}`,
+        end: `${String(endDate.getHours()).padStart(2,"0")}:${String(endDate.getMinutes()).padStart(2,"0")}`,
+        priority: "MEDIUM", theme: "cyan" });
+    });
+    renderCalendar(); renderTimeline();
+  }).catch(error => console.warn("Calendar events could not be loaded:", error.message));
+  renderCalendar(); renderTimeline();
 });

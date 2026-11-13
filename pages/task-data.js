@@ -1,5 +1,7 @@
 (() => {
-  const storageKey = "cogniplan.tasks";
+  // Keep the browser cache isolated by account. Until authentication finishes,
+  // use an empty temporary key so tasks from a previous user never render.
+  let storageKey = "cogniplan.tasks.pending";
   const statuses = ["Draft", "In Progress", "Editing", "Done"];
   const priorities = ["LOW", "MEDIUM", "HIGH", "URGENT"];
   const seedTasks = [
@@ -62,7 +64,7 @@
     }
   }
 
-  function writeTasks(tasks) {
+  function writeTasks(tasks, previousTasks = []) {
     const normalized = tasks.map(normalizeTask);
     try {
       localStorage.setItem(storageKey, JSON.stringify(normalized));
@@ -72,7 +74,9 @@
     }
     // Keep the existing synchronous UI model, while persisting the same changes to MySQL.
     if (window.CogniPlanAPI && window.CogniPlanAPI.post) {
-      syncQueue = syncQueue.then(() => window.CogniPlanAPI.post("/api/tasks/sync", { tasks: normalized }))
+      const currentIds = new Set(normalized.map(task => task.id));
+      const deletedIds = previousTasks.map(task => task.id).filter(id => !currentIds.has(id));
+      syncQueue = syncQueue.then(() => window.CogniPlanAPI.post("/api/tasks/sync", { tasks: normalized, deleted_ids: deletedIds }))
         .catch(error => { console.error("Cloud task sync failed:", error); window.AppUI?.toast("Task saved on this device, but cloud sync failed: " + error.message, "error"); });
     }
     return normalized;
@@ -88,7 +92,7 @@
     const tasks = readTasks();
     const id = `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const created = normalizeTask({ ...task, id });
-    writeTasks([...tasks, created]);
+    writeTasks([...tasks, created], tasks);
     return created;
   }
 
@@ -101,7 +105,7 @@
       return updated;
     });
     if (!updated) throw new Error(`Task not found: ${id}`);
-    writeTasks(next);
+    writeTasks(next, tasks);
     return updated;
   }
 
@@ -109,11 +113,11 @@
     const tasks = readTasks();
     const next = tasks.filter(task => task.id !== id);
     if (next.length === tasks.length) throw new Error(`Task not found: ${id}`);
-    writeTasks(next);
+    writeTasks(next, tasks);
   }
 
   window.CogniPlanTasks = {
-    storageKey,
+    get storageKey() { return storageKey; },
     statuses,
     priorities,
     normalizePriority,
@@ -123,16 +127,21 @@
     remove
   };
 
-  // Load this signed-in user's tasks from MySQL before the page's next render.
+  // Load only this signed-in user's task cache and then hydrate it from MySQL.
   if (window.CogniPlanAPI) {
-    window.CogniPlanAPI.get("/api/tasks").then(result => {
+    window.CogniPlanAPI.get("/api/auth/me").then(auth => {
+      if (!auth.authenticated || !auth.user?.user_id) return null;
+      storageKey = `cogniplan.tasks.user.${auth.user.user_id}`;
+      return window.CogniPlanAPI.get("/api/tasks");
+    }).then(result => {
+      if (!result) return;
       const remote = (result.tasks || []).map(task => normalizeTask({
         id: String(task.id), title: task.title, description: task.description || "",
         category: task.category || "Uncategorized", priority: task.priority,
         status: task.status, favorite: Boolean(task.is_starred)
       }));
       const current = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch { return []; } })();
-      const reloadKey = "cogniplan.tasks.hydrated." + location.pathname;
+      const reloadKey = `cogniplan.tasks.hydrated.${location.pathname}.${storageKey}`;
       if (JSON.stringify(current) !== JSON.stringify(remote)) {
         localStorage.setItem(storageKey, JSON.stringify(remote));
         // Existing page scripts are synchronous; reload once so they render the fetched data.

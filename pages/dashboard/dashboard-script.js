@@ -8,6 +8,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return column.dataset.status;
   }
 
+  function renderProjects(projects) {
+    const list = document.getElementById("dashboard-project-list");
+    if (!list) return;
+    list.replaceChildren();
+    if (!projects.length) {
+      const empty = document.createElement("p");
+      empty.className = "kanban-empty-state";
+      empty.textContent = "No projects yet. Create one through the Projects API to see it here.";
+      list.appendChild(empty);
+      return;
+    }
+    projects.filter(project => project.status === "ACTIVE").forEach(project => {
+      const row = document.createElement("div"); row.className = "project-card-row";
+      const meta = document.createElement("div"); meta.className = "project-card-row__meta";
+      const name = document.createElement("h4"); name.textContent = project.project_name;
+      const description = document.createElement("p"); description.textContent = project.description || "No description provided.";
+      meta.append(name, description);
+      const controls = document.createElement("div"); controls.className = "project-card-row__controls";
+      const date = document.createElement("span"); date.className = "date-badge";
+      date.textContent = project.end_date ? `Due ${project.end_date}` : "No due date";
+      controls.appendChild(date); row.append(meta, controls); list.appendChild(row);
+    });
+    if (!list.children.length) {
+      const empty = document.createElement("p"); empty.className = "kanban-empty-state";
+      empty.textContent = "No active projects."; list.appendChild(empty);
+    }
+  }
+
   function updateEmptyStates() {
     columns.forEach(column => {
       const container = column.querySelector(".kanban-col__cards");
@@ -189,6 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   renderBoard();
+  window.CogniPlanAPI.get("/api/projects")
+    .then(result => renderProjects(result.projects || []))
+    .catch(error => console.warn("Projects could not be loaded:", error.message));
   window.addEventListener("storage", event => {
     if (event.key === taskData.storageKey) renderBoard();
   });

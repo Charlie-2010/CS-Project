@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   savedValues = getValues();
   window.CogniPlanAPI.get("/api/profile").then(result => {
     const remote = result.profile || {};
-    const values = { username: remote.username || username.value, email: remote.email || email.value, timezone: timezone.value };
+    const values = { username: remote.username || username.value, email: remote.email || email.value, timezone: remote.timezone || timezone.value };
     renderSavedValues(values); savedValues = getValues();
   }).catch(error => console.warn("Profile could not be loaded from server:", error.message));
 
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveButton.disabled = true;
     saveButton.textContent = "Saving…";
     try {
-      await window.CogniPlanAPI.put("/api/profile", { username: values.username, email: values.email });
+      await window.CogniPlanAPI.put("/api/profile", values);
       localStorage.setItem(storageKey, JSON.stringify(values));
       savedValues = values; renderSavedValues(values); setEditMode(false);
       window.AppUI.toast("Profile saved to your account.", "success");

@@ -34,9 +34,9 @@ VALUES(%s,%s,%s,%s) ON DUPLICATE KEY UPDATE theme_mode=VALUES(theme_mode),
  daily_task_goal=VALUES(daily_task_goal),widget_layout=VALUES(widget_layout);
 
 -- CALENDAR
-SELECT event_id,task_id,title,description,start_at,end_at,event_type FROM calendar_events WHERE user_id=%s ORDER BY start_at;
-INSERT INTO calendar_events(user_id,task_id,title,description,start_at,end_at,event_type)
-VALUES(%s,%s,%s,%s,%s,%s,%s);
+SELECT event_id,task_id,title,description,start_at,end_at,event_type,priority,color_theme FROM calendar_events WHERE user_id=%s ORDER BY start_at;
+INSERT INTO calendar_events(user_id,task_id,title,description,start_at,end_at,event_type,priority,color_theme)
+VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);
 
 -- REPORTS
 SELECT COUNT(*) total_tasks,COALESCE(SUM(status='Done'),0) completed_tasks,

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(50) NOT NULL,
   email VARCHAR(255) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  timezone VARCHAR(64) NOT NULL DEFAULT 'UTC',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_users_username (username), UNIQUE KEY uq_users_email (email)
@@ -87,12 +88,15 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   start_at DATETIME NOT NULL,
   end_at DATETIME NULL,
   event_type VARCHAR(30) NOT NULL DEFAULT 'PERSONAL',
+  priority VARCHAR(10) NOT NULL DEFAULT 'MEDIUM',
+  color_theme VARCHAR(20) NOT NULL DEFAULT 'cyan',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_events_user_start (user_id, start_at),
   CONSTRAINT fk_events_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   CONSTRAINT fk_events_task FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE SET NULL,
-  CONSTRAINT chk_events_time CHECK (end_at IS NULL OR end_at >= start_at)
+  CONSTRAINT chk_events_time CHECK (end_at IS NULL OR end_at >= start_at),
+  CONSTRAINT chk_events_priority CHECK (priority IN ('LOW','MEDIUM','HIGH','URGENT'))
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS productivity_logs (

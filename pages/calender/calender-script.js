@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   let selectedDate = new Date(today);
   let activeFilter = "Weekly";
+  let editingEventId = null;
 
   function matchesFilter(date) {
     if (activeFilter === "Overall") return true;
@@ -133,7 +134,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const priority = document.createElement("span");
       priority.className = `priority-badge status-${event.priority.toLowerCase()}`;
       priority.textContent = ({ LOW: "Low", MEDIUM: "Medium", HIGH: "High", URGENT: "Urgent" })[event.priority];
-      footer.appendChild(priority);
+      const edit = document.createElement("button");
+      edit.type = "button"; edit.className = "options-btn"; edit.textContent = "Edit";
+      edit.addEventListener("click", () => openModal(event));
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.className = "options-btn"; remove.textContent = "Delete";
+      remove.addEventListener("click", async () => {
+        if (!window.confirm(`Delete “${event.title}”?`)) return;
+        try {
+          await window.CogniPlanAPI.delete(`/api/calendar/events/${event.event_id}`);
+          events.splice(events.indexOf(event), 1); renderCalendar(); renderTimeline();
+          window.AppUI.toast("Event deleted.", "success");
+        } catch (error) { window.AppUI.toast(error.message || "Could not delete event.", "error"); }
+      });
+      footer.append(priority, edit, remove);
       card.append(header, title, footer);
       timeline.appendChild(card);
     });
@@ -171,16 +185,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     modal.classList.remove("active");
     formError.textContent = "";
+    editingEventId = null;
     modalOpener?.focus();
     modalOpener = null;
     modal.setAttribute("aria-hidden", "true");
   }
-  openButton.addEventListener("click", () => {
+  function openModal(event = null) {
     modalOpener = document.activeElement;
+    editingEventId = event?.event_id || null;
+    document.getElementById("event-modal-title").textContent = event ? "Edit Entry" : "Create New Entry";
+    document.querySelector("#event-creation-form .submit-btn").textContent = event ? "Save Changes" : "Save Event";
+    if (event) {
+      selectedDate = new Date(event.date);
+      document.getElementById("event-title").value = event.title;
+      document.getElementById("event-start").value = event.start;
+      document.getElementById("event-end").value = event.end;
+      document.getElementById("event-priority").value = event.priority;
+      document.getElementById("event-theme").value = event.theme;
+    } else form.reset();
     modal.classList.add("active");
     modal.setAttribute("aria-hidden", "false");
     document.getElementById("event-title").focus();
-  });
+  }
+  openButton.addEventListener("click", () => openModal());
   closeButton.addEventListener("click", closeModal);
   modal.addEventListener("click", event => {
     if (event.target === modal) closeModal();
@@ -207,14 +234,19 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const startAt = `${dateKey(selectedDate)}T${start}:00`;
       const endAt = `${dateKey(selectedDate)}T${end}:00`;
-      const saved = await window.CogniPlanAPI.post("/api/calendar/events", {
-        title, start_at: startAt, end_at: endAt, event_type: "PERSONAL"
-      });
-      events.push({ event_id: saved.event_id, date: new Date(selectedDate), title, start, end,
+      const payload = { title, start_at: startAt, end_at: endAt, event_type: "PERSONAL",
         priority: document.getElementById("event-priority").value,
-        theme: document.getElementById("event-theme").value });
+        color_theme: document.getElementById("event-theme").value };
+      const eventId = editingEventId;
+      const saved = eventId
+        ? await window.CogniPlanAPI.put(`/api/calendar/events/${eventId}`, payload)
+        : await window.CogniPlanAPI.post("/api/calendar/events", payload);
+      const next = { event_id: eventId || saved.event_id, date: new Date(selectedDate), title, start, end,
+        priority: payload.priority, theme: payload.color_theme };
+      const existingIndex = events.findIndex(item => Number(item.event_id) === Number(next.event_id));
+      if (existingIndex >= 0) events.splice(existingIndex, 1, next); else events.push(next);
       form.reset(); closeModal(); renderCalendar(); renderTimeline();
-      window.AppUI.toast("Event saved to your account.", "success");
+      window.AppUI.toast(eventId ? "Event updated." : "Event saved to your account.", "success");
     } catch (error) {
       formError.textContent = error.message || "Could not save event.";
     }
@@ -227,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
       events.push({ event_id: item.event_id, date: startDate, title: item.title,
         start: `${String(startDate.getHours()).padStart(2,"0")}:${String(startDate.getMinutes()).padStart(2,"0")}`,
         end: `${String(endDate.getHours()).padStart(2,"0")}:${String(endDate.getMinutes()).padStart(2,"0")}`,
-        priority: "MEDIUM", theme: "cyan" });
+        priority: item.priority || "MEDIUM", theme: item.color_theme || "cyan" });
     });
     renderCalendar(); renderTimeline();
   }).catch(error => console.warn("Calendar events could not be loaded:", error.message));
